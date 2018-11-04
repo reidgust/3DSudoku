@@ -66,7 +66,7 @@ class GameViewController: UIViewController {
                 let box2Geometry = boxGeometry.copy() as! SCNGeometry
                 let box2GeometryNode = SCNNode(geometry: box2Geometry)
                 box2GeometryNode.scale = SCNVector3Make(2, 2, 2)
-                //box2GeometryNode.name = "Cube\(i)"
+                box2GeometryNode.name = "Cube\(i)"
                 box2GeometryNode.position = SCNVector3(x: Float(i%4)*2, y: Float((i/4)%4)*2 - 10, z: Float((i/16)%4)*2)
                 let newMaterial2 = SCNMaterial()
                 switch arc4random() % 11 {
@@ -83,6 +83,11 @@ class GameViewController: UIViewController {
                 }
 
                 box2GeometryNode.geometry?.firstMaterial = newMaterial2
+                if (i%4 == 1 || i%4 == 2) && ((i/4)%4 == 1 || (i/4)%4 == 2) && ((i/16)%4 == 1 || (i/16)%4 == 2)  {
+                    let innerCubePiece = box2GeometryNode.copy() as! SCNNode
+                    innerCubePiece.position = SCNVector3(x: Float(i%4)*2 + 8, y: Float((i/4)%4)*2 - 2, z: Float((i/16)%4)*2 - 8)
+                    gameScene.rootNode.addChildNode(innerCubePiece)
+                }
                 gameScene.rootNode.addChildNode(box2GeometryNode)
             }
         }
@@ -95,6 +100,11 @@ class GameViewController: UIViewController {
                 box2GeometryNode.scale = SCNVector3Make(1, 1, 1)
                 box2GeometryNode.position = SCNVector3(x: Float(i%4)*2, y: Float((i/4)%4)*2 - 10, z: Float((i/16)%4)*2)
                 box2GeometryNode.geometry?.firstMaterial = newMaterial2
+                if (i%4 == 1 || i%4 == 2) && ((i/4)%4 == 1 || (i/4)%4 == 2) && ((i/16)%4 == 1 || (i/16)%4 == 2)  {
+                    let innerCubePiece = box2GeometryNode.copy() as! SCNNode
+                    innerCubePiece.position = SCNVector3(x: Float(i%4)*2 + 8, y: Float((i/4)%4)*2 - 2, z: Float((i/16)%4)*2 - 8)
+                    gameScene.rootNode.addChildNode(innerCubePiece)
+                }
                 gameScene.rootNode.addChildNode(box2GeometryNode)
             }
         }
