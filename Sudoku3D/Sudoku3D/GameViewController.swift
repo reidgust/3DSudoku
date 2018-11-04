@@ -41,25 +41,63 @@ class GameViewController: UIViewController {
     func initCamera() {
         cameraNode = SCNNode()
         cameraNode.camera = SCNCamera()
-        cameraNode.position = SCNVector3(0, 20, 100)
+        cameraNode.position = SCNVector3(0, 0, 50)
         gameScene.rootNode.addChildNode(cameraNode)
     }
     
     func createTarget() {
-        let scene = SCNScene(named: "art.scnassets/Cubes.dae")
-        if let boxNode = scene?.rootNode {
-            gameScene.rootNode.addChildNode(boxNode)
-        }
-
-        /*for _ in 0 ..< 6{
-            let face = SCNMaterial()
-            face.diffuse.contents = UIImage(named: FACE_OUTLINE)
-            face.isDoubleSided = true
-            face.lightingModel = .constant
-            faceArray.append(face)
+        let sceneObjects = SCNScene(named: "art.scnassets/Set.dae")!
+        let title = SCNScene(named: "art.scnassets/Title.dae")!
+        let frame = sceneObjects.rootNode.childNode(withName: "Frame", recursively: true)
+        let cube = sceneObjects.rootNode.childNode(withName: "Cube", recursively: true)
+        
+        if let geometry = title.rootNode.childNode(withName: "typeMesh1", recursively: true)?.geometry {
+            let titleNode = SCNNode(geometry: geometry)
+            titleNode.scale = SCNVector3Make(0.5, 0.5, 0.5)
+            titleNode.position = SCNVector3(x: -14 , y: 10, z: -20)
+            let newMaterial2 = SCNMaterial()
+            newMaterial2.diffuse.contents = Constants.Colors.title
+            titleNode.geometry?.firstMaterial = newMaterial2
+            gameScene.rootNode.addChildNode(titleNode)
         }
         
-        self.geometry?.materials = faceArray */
+        if let boxGeometry = cube?.geometry {
+            for i in 0..<64 {
+                let box2Geometry = boxGeometry.copy() as! SCNGeometry
+                let box2GeometryNode = SCNNode(geometry: box2Geometry)
+                box2GeometryNode.scale = SCNVector3Make(2, 2, 2)
+                //box2GeometryNode.name = "Cube\(i)"
+                box2GeometryNode.position = SCNVector3(x: Float(i%4)*2, y: Float((i/4)%4)*2 - 10, z: Float((i/16)%4)*2)
+                let newMaterial2 = SCNMaterial()
+                switch arc4random() % 11 {
+                case 0:
+                    newMaterial2.diffuse.contents = Constants.Colors.fill4
+                case 1:
+                    newMaterial2.diffuse.contents = Constants.Colors.fill1
+                case 2:
+                    newMaterial2.diffuse.contents = Constants.Colors.fill2
+                case 3:
+                    newMaterial2.diffuse.contents = Constants.Colors.fill3
+                default:
+                    newMaterial2.diffuse.contents = Constants.Colors.clear
+                }
+
+                box2GeometryNode.geometry?.firstMaterial = newMaterial2
+                gameScene.rootNode.addChildNode(box2GeometryNode)
+            }
+        }
+        
+        if let boxGeometry = frame?.geometry {
+            let newMaterial2 = SCNMaterial()
+            newMaterial2.diffuse.contents = Constants.Colors.frame
+            for i in 0..<64 {
+                let box2GeometryNode = SCNNode(geometry: boxGeometry)
+                box2GeometryNode.scale = SCNVector3Make(1, 1, 1)
+                box2GeometryNode.position = SCNVector3(x: Float(i%4)*2, y: Float((i/4)%4)*2 - 10, z: Float((i/16)%4)*2)
+                box2GeometryNode.geometry?.firstMaterial = newMaterial2
+                gameScene.rootNode.addChildNode(box2GeometryNode)
+            }
+        }
     }
     
     override var shouldAutorotate: Bool {

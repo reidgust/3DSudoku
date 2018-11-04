@@ -16,6 +16,7 @@
 		300B7866218D176B0037205C /* Sudoku3DTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 300B7865218D176B0037205C /* Sudoku3DTests.swift */; };
 		300B7871218D176B0037205C /* Sudoku3DUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 300B7870218D176B0037205C /* Sudoku3DUITests.swift */; };
 		300B7881218DEA000037205C /* Cartfile in Resources */ = {isa = PBXBuildFile; fileRef = 300B7880218DEA000037205C /* Cartfile */; };
+		300B7883218EAB390037205C /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 300B7882218EAB390037205C /* Constants.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -51,6 +52,7 @@
 		300B7870218D176B0037205C /* Sudoku3DUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sudoku3DUITests.swift; sourceTree = "<group>"; };
 		300B7872218D176B0037205C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		300B7880218DEA000037205C /* Cartfile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Cartfile; sourceTree = SOURCE_ROOT; };
+		300B7882218EAB390037205C /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -109,6 +111,7 @@
 				300B7857218D176A0037205C /* Assets.xcassets */,
 				300B7859218D176A0037205C /* LaunchScreen.storyboard */,
 				300B785C218D176A0037205C /* Info.plist */,
+				300B7882218EAB390037205C /* Constants.swift */,
 			);
 			path = Sudoku3D;
 			sourceTree = "<group>";
@@ -266,6 +269,7 @@
 			files = (
 				300B7853218D176A0037205C /* GameViewController.swift in Sources */,
 				300B784F218D176A0037205C /* AppDelegate.swift in Sources */,
+				300B7883218EAB390037205C /* Constants.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
