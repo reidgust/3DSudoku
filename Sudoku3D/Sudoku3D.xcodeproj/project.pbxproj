@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		300AC1D52191E3F6001577B5 /* AnswersSimple.json in Resources */ = {isa = PBXBuildFile; fileRef = 300AC1D42191E3F6001577B5 /* AnswersSimple.json */; };
 		300B784F218D176A0037205C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 300B784E218D176A0037205C /* AppDelegate.swift */; };
 		300B7851218D176A0037205C /* art.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = 300B7850218D176A0037205C /* art.scnassets */; };
 		300B7853218D176A0037205C /* GameViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 300B7852218D176A0037205C /* GameViewController.swift */; };
@@ -39,6 +40,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		300AC1D42191E3F6001577B5 /* AnswersSimple.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = AnswersSimple.json; sourceTree = "<group>"; };
 		300B784B218D176A0037205C /* Sudoku3D.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sudoku3D.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		300B784E218D176A0037205C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		300B7850218D176A0037205C /* art.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = art.scnassets; sourceTree = "<group>"; };
@@ -107,6 +109,7 @@
 		300B784D218D176A0037205C /* Sudoku3D */ = {
 			isa = PBXGroup;
 			children = (
+				300AC1D42191E3F6001577B5 /* AnswersSimple.json */,
 				30FE360921918A5900114A94 /* Answers.json */,
 				300B7880218DEA000037205C /* Cartfile */,
 				300B784E218D176A0037205C /* AppDelegate.swift */,
@@ -247,6 +250,7 @@
 				300B7881218DEA000037205C /* Cartfile in Resources */,
 				30FE360A21918A5900114A94 /* Answers.json in Resources */,
 				300B7851218D176A0037205C /* art.scnassets in Resources */,
+				300AC1D52191E3F6001577B5 /* AnswersSimple.json in Resources */,
 				300B785B218D176A0037205C /* LaunchScreen.storyboard in Resources */,
 				300B7858218D176A0037205C /* Assets.xcassets in Resources */,
 				300B7856218D176A0037205C /* Main.storyboard in Resources */,

@@ -10,28 +10,41 @@ import Foundation
 import UIKit
 
 class AnswerHandler {
-    static let referenceArray : [UInt8] = [
-    0x1b/*RGBY*/,0x1e/*RGYB*/,0x27/*RBGY*/,0x2d/*RBYG*/,0x36/*RYGB*/,
-    0x39/*RYBG*/,0x4b/*GRBY*/,0x4e/*GRYB*/,0x63/*GBRY*/,0x6c/*GBYR*/,
-    0x72/*GYRB*/,0x78/*GYBR*/,0x87/*BRGY*/,0x8d/*BRYG*/,0x93/*BGRY*/,
-    0x9c/*BGYR*/,0xb1/*BYRG*/,0xb4/*BYGR*/,0xc6/*YRGB*/,0xc9/*YRBG*/,
-    0xd2/*YGRB*/,0xd8/*YGBR*/,0xe1/*YBRG*/,0xe4/*YBGR*/]
+    let validAnswers : [[UInt32]]
     
+    var searchValue : [UInt32] = [0,0,0,0]
+
     init(){
-        if let path = Bundle.main.path(forResource: "Answers", ofType: "json") {
+        if let path = Bundle.main.path(forResource: "AnswersSimple", ofType: "json") {
             do {
                 let data = try Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe)
-                let jsonResult = try JSONSerialization.jsonObject(with: data, options: .mutableLeaves)
-                if let jsonResult = jsonResult as? Dictionary<String, AnyObject>, let person = jsonResult["person"] as? [Any] {
-                    // do stuff
-                }
+                validAnswers = try JSONSerialization.jsonObject(with: data, options: .mutableLeaves) as! Array<Array<UInt32>>
             } catch {
-                // handle error
+                fatalError("Can't load answer set.")
             }
+        } else {
+            fatalError("Can't find answer set.")
         }
     }
     
-    static private func checkAnswer(_ ans: [UIColor?]) -> Bool {
+    public func pickRandomSoln() -> [UIColor] {
+        let randVal : [UInt32]  = validAnswers[Int(arc4random_uniform(UInt32(validAnswers.count)))]
+        var refCols : [UIColor] = []
+        var solnCols : [UIColor] = []
+        var colChoices = [Constants.Colors.fill1, Constants.Colors.fill2, Constants.Colors.fill3, Constants.Colors.fill4]
+        for _ in 0...3 {
+            let index = arc4random_uniform(UInt32(colChoices.count))
+            refCols.append(colChoices.remove(at: Int(index)))
+        }
+        for currentInt in randVal {
+            for j in 0...15 {
+                solnCols.append(refCols[Int(currentInt >> (j * 2)) & 3])
+            }
+        }
+        return solnCols
+    }
+
+    private func checkAnswer(_ ans: [UIColor?]) -> Bool {
         if ans.contains(nil) { return false }
         var refCols : [UIColor] = []
         for i in 0...3 {
@@ -59,7 +72,7 @@ class AnswerHandler {
             return false
         }
         
-        var rows : [UInt8] = []
+        var rows : [UInt32] = []
         for i in 0...63 {
             switch ans[i] {
             case refCols[0],refCols[1]:
@@ -78,19 +91,45 @@ class AnswerHandler {
             }
         }
         
-        var searchValue : String = ""
+        searchValue = [0,0,0,0]
+        var temp : UInt32 = 0
         for i in 0...15 {
-            var temp : UInt32 = 0
-            if let index = referenceArray.firstIndex(of: rows[i]) {
-                let dist : UInt32 = referenceArray.distance(from: referenceArray.startIndex, to: index)
-                if i % 2 == 0 {
-                    temp = dist << 6
-                } else {
-                    searchValue.append(String(format:"%03X", (temp | dist)))
-                }
-            } else { return false }
+            if i % 4 == 0 { temp = 0 }
+            temp = temp | (rows[i]  << ((3 - (i % 4)) * 8))
+            if i % 4 == 3 { searchValue[i/4] = temp }
         }
         
-        return true
+        return searchValidAnswers(for:searchValue)
+    }
+    
+    private func searchValidAnswers(for searchVal: [UInt32]) -> Bool {
+        var low = 0
+        var high = validAnswers.count - 1
+        var mid = Int(high / 2)
+        
+        while low <= high {
+            let midElement = validAnswers[mid]
+            switch compareValues(midElement) {
+            case -1 :
+                high = mid - 1
+            case 0:
+                return true
+            case 1:
+                low = mid + 1
+            default:
+                return false
+            }
+            mid = (low + high) / 2
+        }
+        
+        return false
+    }
+    
+    private func compareValues(_ levelTerm : [UInt32]) ->Int8 {
+        for i in 0...3 {
+            if(levelTerm[i] > searchValue[i]) {return -1}
+            if(levelTerm[i] < searchValue[i]) {return 1}
+        }
+        return 0;
     }
 }

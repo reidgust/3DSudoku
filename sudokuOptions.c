@@ -32,13 +32,18 @@ void printAnswerVisual() {
 }
 
 void printAnswer() {
-    fprintf(f,"\"");
-    unsigned int res = 0;
+    fprintf(f,"[");
+    unsigned long res = 0;
     for (int i=0; i < 16; i++) {
-        unsigned char actualVal = workingSet[i];
-        fprintf(f,"%02X",actualVal & 0x3F);
+        unsigned long actualVal = ((unsigned long) workingSet[i]) & 0xFF;
+        if (i % 4 == 0) { res = 0; }
+        res = res | (actualVal  << ((3 - (i % 4)) * 8));
+        if (i % 4 == 3){
+            fprintf(f,"%lu", res);
+            if (i != 15) {fprintf(f,",");}
+        }
     }
-    fprintf(f,"\",");
+    fprintf(f,"],");
 }
 
 int newRowGood(int i, unsigned char newRow) {

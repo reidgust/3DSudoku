@@ -18,6 +18,7 @@ class GameViewController: UIViewController {
     var targetCreationTime : TimeInterval = 0
     var nodeColors : [UIColor?] = Array(repeating: nil, count: 64)
     let activeNodeMaterials = makeNodeMaterials()
+    let answerHander = AnswerHandler()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -47,6 +48,12 @@ class GameViewController: UIViewController {
         return materials
     }
     
+    static func makeAnswerNodeMaterial(forColor color: UIColor) -> SCNMaterial {
+        let material2 = SCNMaterial()
+        material2.diffuse.contents = color
+        return material2
+    }
+    
     func initView() {
         gameView = self.view as? SCNView
         gameView.allowsCameraControl = true
@@ -71,6 +78,11 @@ class GameViewController: UIViewController {
         let title = SCNScene(named: "art.scnassets/Title.dae")!
         let frame = sceneObjects.rootNode.childNode(withName: "Frame", recursively: true)
         let cube = sceneObjects.rootNode.childNode(withName: "Cube", recursively: true)
+        nodeColors = answerHander.pickRandomSoln()
+        var materials : [UIColor:SCNMaterial] = [:]
+        for i in 0...3 {
+            materials[nodeColors[i]!] = GameViewController.makeAnswerNodeMaterial(forColor:nodeColors[i]!)
+        }
         
         if let geometry = title.rootNode.childNode(withName: "typeMesh1", recursively: true)?.geometry {
             let titleNode = SCNNode(geometry: geometry)
@@ -90,7 +102,7 @@ class GameViewController: UIViewController {
                 cubeNode.name = "Cube\(i)"
                 cubeNode.scale = SCNVector3Make(2, 2, 2)
                 cubeNode.position = SCNVector3(x: Float(i%4)*2 - 4, y: Float((i/4)%4)*2 - 10, z: Float((i/16)%4)*2 - 16)
-                cubeNode.geometry?.firstMaterial = activeNodeMaterials[0]
+                cubeNode.geometry?.firstMaterial = arc4random_uniform(64) < 20 ?  materials[nodeColors[i]!] : activeNodeMaterials[0]
                 if (i%4 == 1 || i%4 == 2) && ((i/4)%4 == 1 || (i/4)%4 == 2) && ((i/16)%4 == 1 || (i/16)%4 == 2)  {
                     let innerCubePiece = cubeNode.copy() as! SCNNode
                     innerCubePiece.position = SCNVector3(x: Float(i%4)*2 + 4, y: Float((i/4)%4)*2 - 2, z: Float((i/16)%4)*2 - 24)
