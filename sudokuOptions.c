@@ -2,8 +2,13 @@
 #include <stdio.h>
 #include <string.h>
 
-unsigned char validRows[24] ={0x1b,0x1e,0x27,0x2d,0x36,0x39,0x4b,0x4e,0x63,0x6c,0x72,0x78,
-    0x87,0x8d,0x93,0x9c,0xb1,0xb4,0xc6,0xc9,0xd2,0xd8,0xe1,0xe4};
+unsigned char validRows[24] = {
+    0x1b/*RGBY*/,0x1e/*RGYB*/,0x27/*RBGY*/,0x2d/*RBYG*/,0x36/*RYGB*/,
+    0x39/*RYBG*/,0x4b/*GRBY*/,0x4e/*GRYB*/,0x63/*GBRY*/,0x6c/*GBYR*/,
+    0x72/*GYRB*/,0x78/*GYBR*/,0x87/*BRGY*/,0x8d/*BRYG*/,0x93/*BGRY*/,
+    0x9c/*BGYR*/,0xb1/*BYRG*/,0xb4/*BYGR*/,0xc6/*YRGB*/,0xc9/*YRBG*/,
+    0xd2/*YGRB*/,0xd8/*YGBR*/,0xe1/*YBRG*/,0xe4/*YBGR*/
+};
 
 unsigned char workingSet[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
@@ -11,8 +16,8 @@ unsigned char count = 0;
 
 static FILE* f;
 
-void printface() {
-    for (int i = 0; i < 16; i++ ) {
+void printAnswerVisual() {
+    for (int i = 0; i < 64; i++ ) {
         switch ((workingSet[i/4] >> (6 - (( i % 4 ) * 2))) & 0x3) {
             case 0: fprintf(f,"R");
                 break;
@@ -23,12 +28,42 @@ void printface() {
             case 3: fprintf(f,"Y");
         }
         if ( i % 4 == 3 ) fprintf(f,"\n");
-        if ( i == 15 ) fprintf(f,"\n");
+        if (i % 16 == 15) fprintf(f,"\n");
     }
+    fprintf(f,"\n\n\n");
+}
+
+void printAnswer() {
+    unsigned int res = 0;
+    for (int i=0; i < 16; i++) {
+        unsigned char actualVal = workingSet[i];
+        int j = 0;
+        for (; j < 24; j++) {
+            if(validRows[j] == actualVal) break;
+        }
+        fprintf(f,"(index: %d)",j);
+        if (i % 2 == 0) {
+            res = ((unsigned int) j) & 0x111111;
+        } else {
+            int printMe = (res << 6) | j;
+            fprintf(f,"%X",printMe);
+        }
+        
+    }
+    exit(1);
 }
 
 int newRowGood(int i, unsigned char newRow) {
     for (int j = (i/4)*4; j < i; j++) {
+        unsigned char rowJ = workingSet[j];
+        if ((( newRow       & 0x3) == ( rowJ       & 0x3)) ||
+            (((newRow >> 2) & 0x3) == ((rowJ >> 2) & 0x3)) ||
+            (((newRow >> 4) & 0x3) == ((rowJ >> 4) & 0x3)) ||
+            (((newRow >> 6) & 0x3) == ((rowJ >> 6) & 0x3))) {
+            return 0;
+        }
+    }
+    for (int j = i%4; j < i; j=j+4) {
         unsigned char rowJ = workingSet[j];
         if ((( newRow       & 0x3) == ( rowJ       & 0x3)) ||
             (((newRow >> 2) & 0x3) == ((rowJ >> 2) & 0x3)) ||
@@ -45,10 +80,11 @@ void assignRow(int i) {
         unsigned char newRow = validRows[j];
         if(newRowGood(i,newRow) == 1) {
             workingSet[i] = newRow;
-            if (i < 3) {
+            if (i < 15) {
                 assignRow(i+1);
             } else {
-                printface();
+                printAnswerVisual();
+                printAnswer();
             }
         }
     }
