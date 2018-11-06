@@ -17,6 +17,8 @@
 		300B7871218D176B0037205C /* Sudoku3DUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 300B7870218D176B0037205C /* Sudoku3DUITests.swift */; };
 		300B7881218DEA000037205C /* Cartfile in Resources */ = {isa = PBXBuildFile; fileRef = 300B7880218DEA000037205C /* Cartfile */; };
 		300B7883218EAB390037205C /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 300B7882218EAB390037205C /* Constants.swift */; };
+		30FE360A21918A5900114A94 /* Answers.json in Resources */ = {isa = PBXBuildFile; fileRef = 30FE360921918A5900114A94 /* Answers.json */; };
+		30FE360C21918A9A00114A94 /* AnswerHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30FE360B21918A9A00114A94 /* AnswerHandler.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -53,6 +55,8 @@
 		300B7872218D176B0037205C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		300B7880218DEA000037205C /* Cartfile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Cartfile; sourceTree = SOURCE_ROOT; };
 		300B7882218EAB390037205C /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		30FE360921918A5900114A94 /* Answers.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Answers.json; sourceTree = "<group>"; };
+		30FE360B21918A9A00114A94 /* AnswerHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnswerHandler.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -103,6 +107,7 @@
 		300B784D218D176A0037205C /* Sudoku3D */ = {
 			isa = PBXGroup;
 			children = (
+				30FE360921918A5900114A94 /* Answers.json */,
 				300B7880218DEA000037205C /* Cartfile */,
 				300B784E218D176A0037205C /* AppDelegate.swift */,
 				300B7850218D176A0037205C /* art.scnassets */,
@@ -112,6 +117,7 @@
 				300B7859218D176A0037205C /* LaunchScreen.storyboard */,
 				300B785C218D176A0037205C /* Info.plist */,
 				300B7882218EAB390037205C /* Constants.swift */,
+				30FE360B21918A9A00114A94 /* AnswerHandler.swift */,
 			);
 			path = Sudoku3D;
 			sourceTree = "<group>";
@@ -239,6 +245,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				300B7881218DEA000037205C /* Cartfile in Resources */,
+				30FE360A21918A5900114A94 /* Answers.json in Resources */,
 				300B7851218D176A0037205C /* art.scnassets in Resources */,
 				300B785B218D176A0037205C /* LaunchScreen.storyboard in Resources */,
 				300B7858218D176A0037205C /* Assets.xcassets in Resources */,
@@ -267,6 +274,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				30FE360C21918A9A00114A94 /* AnswerHandler.swift in Sources */,
 				300B7853218D176A0037205C /* GameViewController.swift in Sources */,
 				300B784F218D176A0037205C /* AppDelegate.swift in Sources */,
 				300B7883218EAB390037205C /* Constants.swift in Sources */,

@@ -34,6 +34,7 @@ void printAnswerVisual() {
 }
 
 void printAnswer() {
+    fprintf(f,"\"");
     unsigned int res = 0;
     for (int i=0; i < 16; i++) {
         unsigned char actualVal = workingSet[i];
@@ -48,7 +49,7 @@ void printAnswer() {
             fprintf(f,"%03X",printMe);
         }
     }
-    fprintf(f,",");
+    fprintf(f,"\",");
     count++;
 }
 
