@@ -125,13 +125,15 @@ class GameViewController: UIViewController {
         if let material : SCNMaterial = node.geometry?.firstMaterial {
             if let i : Int = activeNodeMaterials.firstIndex(of: material)
             {
-                let newIndex = (i + 1) % 5
-                node.geometry!.firstMaterial = activeNodeMaterials[newIndex]
-                
-                if newIndex == 0 {
-                    nodeColors[nodeIndex!] = nil
-                } else {
-                    nodeColors[nodeIndex!] = (node.geometry!.firstMaterial!.diffuse.contents as! UIColor)
+                if i > -1 {
+                    let newIndex = (i + 1) % 5
+                    node.geometry!.firstMaterial = activeNodeMaterials[newIndex]
+                    
+                    if newIndex == 0 {
+                        nodeColors[nodeIndex!] = nil
+                    } else {
+                        nodeColors[nodeIndex!] = (node.geometry!.firstMaterial!.diffuse.contents as! UIColor)
+                    }
                 }
             }
         }
