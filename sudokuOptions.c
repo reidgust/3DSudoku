@@ -12,7 +12,7 @@ unsigned char validRows[24] = {
 
 unsigned char workingSet[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
-unsigned char count = 0;
+long count = 0;
 
 static FILE* f;
 
@@ -41,16 +41,15 @@ void printAnswer() {
         for (; j < 24; j++) {
             if(validRows[j] == actualVal) break;
         }
-        fprintf(f,"(index: %d)",j);
         if (i % 2 == 0) {
-            res = ((unsigned int) j) & 0x111111;
+            res = j & 0x3F;
         } else {
-            int printMe = (res << 6) | j;
-            fprintf(f,"%X",printMe);
+            int printMe = (res << 6) | (j & 0x3F);
+            fprintf(f,"%03X",printMe);
         }
-        
     }
-    exit(1);
+    fprintf(f,",");
+    count++;
 }
 
 int newRowGood(int i, unsigned char newRow) {
@@ -83,7 +82,7 @@ void assignRow(int i) {
             if (i < 15) {
                 assignRow(i+1);
             } else {
-                printAnswerVisual();
+                //printAnswerVisual();
                 printAnswer();
             }
         }
@@ -116,6 +115,7 @@ int main() {
 
     workingSet[0] = validRows[0];
     assignRow(1);
+    printf("%ld",count);
     fclose(f);
     
     return 0;
