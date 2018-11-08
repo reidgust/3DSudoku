@@ -26,6 +26,7 @@ class GameViewController: UIViewController {
         initScene()
         initCamera()
         createGameObjects()
+        addGestures()
     }
     
     static func makeNodeMaterials() -> [SCNMaterial] {
@@ -48,6 +49,55 @@ class GameViewController: UIViewController {
         return materials
     }
     
+    func addGestures() {
+        let pinch = UIPinchGestureRecognizer(target: self, action: #selector(pinch(sender:)))
+        let pan = UIPanGestureRecognizer(target: self, action: #selector(pan(sender:)))
+        let rotate = UIRotationGestureRecognizer(target:self, action: #selector(rotate(sender:)))
+        self.gameView.addGestureRecognizer(pinch)
+        self.gameView.addGestureRecognizer(pan)
+        self.gameView.addGestureRecognizer(rotate)
+    }
+    
+    @objc func pinch(sender:UIPinchGestureRecognizer) {
+        if sender.state == .began || sender.state == .changed {
+            cameraNode.position = SCNVector3(CGFloat(cameraNode.position.x), CGFloat(cameraNode.position.y), CGFloat(cameraNode.position.z) * sender.scale)
+            sender.scale = 1
+        }
+    }
+    
+    @objc func pan(sender:UIPanGestureRecognizer) {
+        //if sender.state == .began || sender.state == .changed {
+            let translation = sender.translation(in: sender.view!)
+            for cube in gameScene.rootNode.childNodes(passingTest:
+                { (node, ballYesOrNo) -> Bool in
+                    if let name = node.name {
+                        return name.contains("Master")
+                    }
+                    return false
+                }) {
+                let x = Float(translation.x)
+                let y = Float(-translation.y)
+                let anglePan = (sqrt(pow(x,2)+pow(y,2)))*(Float)(Double.pi)/180.0
+                cube.rotation = SCNVector4(-y,x,0,anglePan)
+            }
+            for cube in gameScene.rootNode.childNodes(passingTest:
+                { (node, ballYesOrNo) -> Bool in
+                    if let name = node.name {
+                        return name.contains("Inner")
+                    }
+                    return false
+                }) {
+                let x = Float(translation.x)
+                let y = Float(-translation.y)
+                let anglePan = (sqrt(pow(x,2)+pow(y,2)))*(Float)(Double.pi)/180.0
+                cube.rotation = SCNVector4(-y,x, 0 ,anglePan)
+            }
+    }
+
+    @objc func rotate(sender:UIRotationGestureRecognizer) {
+        
+    }
+    
     static func makeAnswerNodeMaterial(forColor color: UIColor) -> SCNMaterial {
         let material2 = SCNMaterial()
         material2.diffuse.contents = color
@@ -56,7 +106,7 @@ class GameViewController: UIViewController {
     
     func initView() {
         gameView = self.view as? SCNView
-        gameView.allowsCameraControl = true
+        gameView.allowsCameraControl = false
         gameView.autoenablesDefaultLighting = true
     }
     
@@ -69,7 +119,7 @@ class GameViewController: UIViewController {
     func initCamera() {
         cameraNode = SCNNode()
         cameraNode.camera = SCNCamera()
-        cameraNode.position = SCNVector3(0, 0, 50)
+        cameraNode.position = SCNVector3(0, 0, 30)
         gameScene.rootNode.addChildNode(cameraNode)
     }
     
@@ -86,54 +136,87 @@ class GameViewController: UIViewController {
         
         if let geometry = title.rootNode.childNode(withName: "typeMesh1", recursively: true)?.geometry {
             let titleNode = SCNNode(geometry: geometry)
-            titleNode.scale = SCNVector3Make(0.5, 0.5, 0.5)
-            titleNode.position = SCNVector3(x: -14 , y: 10, z: -20)
+            titleNode.scale = SCNVector3Make(0.8, 0.8, 0.8)
+            titleNode.position = SCNVector3(x: -23, y: 25, z: -70)
             titleNode.name = "Title"
+            //let myOmniLight = SCNLight()
+            //myOmniLight.type = SCNLight.LightType.directional
+            //myOmniLight.color = UIColor.yellow
+            //titleNode.light = myOmniLight
+            
             let newMaterial2 = SCNMaterial()
             newMaterial2.diffuse.contents = Constants.Colors.title
             titleNode.geometry?.firstMaterial = newMaterial2
             gameScene.rootNode.addChildNode(titleNode)
         }
-        
-        if let boxGeometry = cube?.geometry {
-            for i in 0..<64 {
-                let geometry = boxGeometry.copy() as! SCNGeometry
-                let cubeNode = SCNNode(geometry: geometry)
-                cubeNode.name = "Cube\(i)"
-                cubeNode.scale = SCNVector3Make(2, 2, 2)
-                cubeNode.position = SCNVector3(x: Float(i%4)*2 - 4, y: Float((i/4)%4)*2 - 10, z: Float((i/16)%4)*2 - 16)
-                cubeNode.geometry?.firstMaterial = arc4random_uniform(64) < 20 ?  materials[nodeColors[i]!] : activeNodeMaterials[0]
-                if (i%4 == 1 || i%4 == 2) && ((i/4)%4 == 1 || (i/4)%4 == 2) && ((i/16)%4 == 1 || (i/16)%4 == 2)  {
-                    let innerCubePiece = cubeNode.copy() as! SCNNode
-                    innerCubePiece.position = SCNVector3(x: Float(i%4)*2 + 4, y: Float((i/4)%4)*2 - 2, z: Float((i/16)%4)*2 - 24)
-                    gameScene.rootNode.addChildNode(innerCubePiece)
-                }
-                gameScene.rootNode.addChildNode(cubeNode)
-            }
-        }
-        
-        if let boxGeometry = frame?.geometry {
+
+        let masterCube = SCNNode(geometry: SCNBox(width: 8, height: 8, length: 8, chamferRadius: 0))
+        let innerCube = SCNNode(geometry: SCNBox(width: 4, height: 4, length: 4, chamferRadius: 0))
+        innerCube.geometry?.firstMaterial = activeNodeMaterials[0]
+        masterCube.geometry?.firstMaterial = activeNodeMaterials[0]
+        masterCube.name = "Master"
+        innerCube.name = "Inner"
+        innerCube.position = SCNVector3(0,-10,0)
+        innerCube.light = SCNLight()
+        innerCube.light!.type = SCNLight.LightType.ambient
+        gameScene.rootNode.addChildNode(masterCube)
+        gameScene.rootNode.addChildNode(innerCube)
+
+        if let cubeGeometry = cube?.geometry, let frameGeometry = frame?.geometry {
             let newMaterial = SCNMaterial()
             newMaterial.diffuse.contents = Constants.Colors.frame
             for i in 0..<64 {
-                let frameNode = SCNNode(geometry: boxGeometry)
-                frameNode.name = "Frame"
-                frameNode.scale = SCNVector3Make(1, 1, 1)
-                frameNode.position = SCNVector3(x: Float(i%4)*2 - 4, y: Float((i/4)%4)*2 - 10, z: Float((i/16)%4)*2 - 16)
+                let cubeNode = SCNNode(geometry: cubeGeometry.copy() as? SCNGeometry)
+                let frameNode = SCNNode(geometry: frameGeometry.copy() as? SCNGeometry)
+                cubeNode.name = "Cube\(i)"
+                frameNode.name = "Frame\(i)"
+                let cubeScale = SCNVector3Make(2, 2, 2)
+                cubeNode.scale = cubeScale
+                let frameScale = SCNVector3Make(1, 1, 1)
+                frameNode.scale = frameScale
+                let showColor = arc4random_uniform(64) < 20
+                cubeNode.geometry?.firstMaterial = showColor ?  materials[nodeColors[i]!] : activeNodeMaterials[0]
                 frameNode.geometry?.firstMaterial = newMaterial
+                
+                var position = SCNVector3(
+                    x: (Float(i % 4) - 1.5) * 2,
+                    y: ((Float((i / 4) % 4)) - 1.5) * 2,
+                    z: ((Float((i / 16) % 4)) - 1.5) * 2)
+                cubeNode.position = position
+                frameNode.position = position
+                
+                masterCube.addChildNode(cubeNode)
+                masterCube.addChildNode(frameNode)
+                
                 if (i%4 == 1 || i%4 == 2) && ((i/4)%4 == 1 || (i/4)%4 == 2) && ((i/16)%4 == 1 || (i/16)%4 == 2)  {
-                    let innerCubePiece = frameNode.copy() as! SCNNode
-                    innerCubePiece.position = SCNVector3(x: Float(i%4)*2 + 4, y: Float((i/4)%4)*2 - 2, z: Float((i/16)%4)*2 - 24)
-                    gameScene.rootNode.addChildNode(innerCubePiece)
+                    let innerCubeNode = SCNNode(geometry: cubeGeometry.copy() as? SCNGeometry)
+                    let innerFrameNode = SCNNode(geometry: frameGeometry.copy() as? SCNGeometry)
+                    innerCubeNode.name = "Cube\(i)Copy"
+                    innerFrameNode.name = "Frame\(i)Copy"
+                    innerCubeNode.scale = cubeScale
+                    innerFrameNode.scale = frameScale
+                    //position = SCNVector3(position.x, position.y - 10, position.z)
+                    innerCubeNode.position = position
+                    innerFrameNode.position = position
+                    innerCubeNode.geometry?.firstMaterial = showColor ?  materials[nodeColors[i]!] : activeNodeMaterials[0]
+                    innerFrameNode.geometry?.firstMaterial = newMaterial
+                    innerCube.addChildNode(innerCubeNode)
+                    innerCube.addChildNode(innerFrameNode)
                 }
-                gameScene.rootNode.addChildNode(frameNode)
             }
         }
     }
     
     func nextColor(forNode node: SCNNode) {
         if !(node.name?.contains("Cube"))! { return }
-        let nodeIndex = Int(node.name![node.name!.index(node.name!.startIndex, offsetBy: 4)...])
+        var nodeIndex : Int?;
+        if node.name!.contains("Copy") {
+            let start = node.name!.index(node.name!.startIndex, offsetBy: 4)
+            let end = node.name!.index(node.name!.endIndex, offsetBy: -4)
+            nodeIndex = Int(node.name![start..<end])
+        } else {
+            nodeIndex = Int(node.name![node.name!.index(node.name!.startIndex, offsetBy: 4)...])
+        }
         if let material : SCNMaterial = node.geometry?.firstMaterial {
             if let i : Int = activeNodeMaterials.firstIndex(of: material)
             {
@@ -159,6 +242,10 @@ class GameViewController: UIViewController {
         if let hitObject = hitList.first {
             let node = hitObject.node
             if (node.name?.contains("Cube"))! {
+                if node.name!.contains("Copy") {
+                    let name = String(node.name![..<node.name!.index(node.name!.endIndex, offsetBy: -4)])
+                    nextColor(forNode: self.gameScene.rootNode.childNode(withName: name, recursively: true)!)
+                }
                 nextColor(forNode: node)
             }
         }
