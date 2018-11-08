@@ -10,11 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Sudoku3D/GameViewController.swift"
-            timestampString = "563402387.619081"
+            timestampString = "563407341.188889"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "169"
-            endingLineNumber = "169"
+            startingLineNumber = "117"
+            endingLineNumber = "117"
             landmarkName = "createGameObjects()"
             landmarkType = "7">
          </BreakpointContent>
@@ -26,11 +26,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Sudoku3D/GameViewController.swift"
-            timestampString = "563402387.619769"
+            timestampString = "563407341.189559"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "150"
-            endingLineNumber = "150"
+            startingLineNumber = "97"
+            endingLineNumber = "97"
             landmarkName = "createGameObjects()"
             landmarkType = "7">
             <Locations>
@@ -74,11 +74,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Sudoku3D/GameViewController.swift"
-            timestampString = "563402387.62028"
+            timestampString = "563407341.1900409"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "151"
-            endingLineNumber = "151"
+            startingLineNumber = "98"
+            endingLineNumber = "98"
             landmarkName = "createGameObjects()"
             landmarkType = "7">
          </BreakpointContent>
@@ -90,11 +90,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Sudoku3D/GameViewController.swift"
-            timestampString = "563402387.62073"
+            timestampString = "563407341.1905119"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "128"
-            endingLineNumber = "128"
+            startingLineNumber = "79"
+            endingLineNumber = "79"
             landmarkName = "createGameObjects()"
             landmarkType = "7">
          </BreakpointContent>
@@ -106,11 +106,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Sudoku3D/GameViewController.swift"
-            timestampString = "563402387.621174"
+            timestampString = "563407341.19098"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "127"
-            endingLineNumber = "127"
+            startingLineNumber = "83"
+            endingLineNumber = "83"
             landmarkName = "createGameObjects()"
             landmarkType = "7">
          </BreakpointContent>
@@ -122,27 +122,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Sudoku3D/GameViewController.swift"
-            timestampString = "563402387.6216249"
+            timestampString = "563407341.191443"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "131"
-            endingLineNumber = "131"
-            landmarkName = "createGameObjects()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Sudoku3D/GameViewController.swift"
-            timestampString = "563402387.62207"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "212"
-            endingLineNumber = "212"
+            startingLineNumber = "159"
+            endingLineNumber = "159"
             landmarkName = "nextColor(forNode:)"
             landmarkType = "7">
             <Locations>
@@ -154,11 +138,11 @@
                   moduleName = "Sudoku3D"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/reid/Documents/Personal%20Projects/3DSudoku/Sudoku3D/Sudoku3D/GameViewController.swift"
-                  timestampString = "563038625.1102329"
+                  timestampString = "563405208.013749"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "123"
-                  endingLineNumber = "123"
+                  startingLineNumber = "213"
+                  endingLineNumber = "213"
                   offsetFromSymbolStart = "66">
                </Location>
                <Location
@@ -169,12 +153,12 @@
                   moduleName = "Sudoku3D"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/reid/Documents/Personal%20Projects/3DSudoku/Sudoku3D/Sudoku3D/GameViewController.swift"
-                  timestampString = "563038625.113844"
+                  timestampString = "563405208.017522"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "123"
-                  endingLineNumber = "123"
-                  offsetFromSymbolStart = "5573">
+                  startingLineNumber = "213"
+                  endingLineNumber = "213"
+                  offsetFromSymbolStart = "9383">
                </Location>
             </Locations>
          </BreakpointContent>
@@ -186,11 +170,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Sudoku3D/GameViewController.swift"
-            timestampString = "563402387.622584"
+            timestampString = "563407341.191914"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "241"
-            endingLineNumber = "241"
+            startingLineNumber = "193"
+            endingLineNumber = "193"
             landmarkName = "touchesEnded(_:with:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -202,11 +186,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Sudoku3D/GameViewController.swift"
-            timestampString = "563402387.623289"
+            timestampString = "563407341.19238"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "222"
-            endingLineNumber = "222"
+            startingLineNumber = "169"
+            endingLineNumber = "169"
             landmarkName = "nextColor(forNode:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -218,11 +202,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Sudoku3D/GameViewController.swift"
-            timestampString = "563402387.624234"
+            timestampString = "563407341.1928411"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "224"
-            endingLineNumber = "224"
+            startingLineNumber = "171"
+            endingLineNumber = "171"
             landmarkName = "nextColor(forNode:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -234,11 +218,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Sudoku3D/GameViewController.swift"
-            timestampString = "563402387.6250041"
+            timestampString = "563407341.193298"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "225"
-            endingLineNumber = "225"
+            startingLineNumber = "172"
+            endingLineNumber = "172"
             landmarkName = "nextColor(forNode:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -250,11 +234,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Sudoku3D/GameViewController.swift"
-            timestampString = "563402387.625562"
+            timestampString = "563407341.193756"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "228"
-            endingLineNumber = "228"
+            startingLineNumber = "175"
+            endingLineNumber = "175"
             landmarkName = "nextColor(forNode:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -266,11 +250,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Sudoku3D/GameViewController.swift"
-            timestampString = "563402387.626073"
+            timestampString = "563407341.194212"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "230"
-            endingLineNumber = "230"
+            startingLineNumber = "177"
+            endingLineNumber = "177"
             landmarkName = "nextColor(forNode:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -362,11 +346,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Sudoku3D/GameViewController.swift"
-            timestampString = "563402387.626639"
+            timestampString = "563407341.1947531"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "170"
-            endingLineNumber = "170"
+            startingLineNumber = "118"
+            endingLineNumber = "118"
             landmarkName = "createGameObjects()"
             landmarkType = "7">
          </BreakpointContent>
@@ -378,11 +362,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Sudoku3D/GameViewController.swift"
-            timestampString = "563402387.627049"
+            timestampString = "563407341.195142"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "179"
-            endingLineNumber = "179"
+            startingLineNumber = "127"
+            endingLineNumber = "127"
             landmarkName = "createGameObjects()"
             landmarkType = "7">
          </BreakpointContent>
@@ -394,11 +378,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Sudoku3D/GameViewController.swift"
-            timestampString = "563402387.627579"
+            timestampString = "563407341.195514"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "180"
-            endingLineNumber = "180"
+            startingLineNumber = "128"
+            endingLineNumber = "128"
             landmarkName = "createGameObjects()"
             landmarkType = "7">
          </BreakpointContent>
@@ -410,28 +394,44 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Sudoku3D/GameViewController.swift"
-            timestampString = "563402387.6281869"
+            timestampString = "563407341.195886"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "70"
-            endingLineNumber = "70"
-            landmarkName = "pan(sender:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Sudoku3D/GameViewController.swift"
-            timestampString = "563402387.628776"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "215"
-            endingLineNumber = "215"
+            startingLineNumber = "162"
+            endingLineNumber = "162"
             landmarkName = "nextColor(forNode:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Sudoku3D/GameViewController.swift"
+            timestampString = "563407341.196221"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "202"
+            endingLineNumber = "202"
+            landmarkName = "touchesEnded(_:with:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Sudoku3D/GameViewController.swift"
+            timestampString = "563407341.1965261"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "199"
+            endingLineNumber = "199"
+            landmarkName = "touchesEnded(_:with:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

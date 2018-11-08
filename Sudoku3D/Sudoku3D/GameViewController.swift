@@ -19,6 +19,7 @@ class GameViewController: UIViewController {
     var nodeColors : [UIColor?] = Array(repeating: nil, count: 64)
     let activeNodeMaterials = makeNodeMaterials()
     let answerHander = AnswerHandler()
+    var currentLvl : Int = 0
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -47,55 +48,6 @@ class GameViewController: UIViewController {
         material5.diffuse.contents = Constants.Colors.fill4Selected
         materials.append(material5)
         return materials
-    }
-    
-    func addGestures() {
-        let pinch = UIPinchGestureRecognizer(target: self, action: #selector(pinch(sender:)))
-        let pan = UIPanGestureRecognizer(target: self, action: #selector(pan(sender:)))
-        let rotate = UIRotationGestureRecognizer(target:self, action: #selector(rotate(sender:)))
-        self.gameView.addGestureRecognizer(pinch)
-        self.gameView.addGestureRecognizer(pan)
-        self.gameView.addGestureRecognizer(rotate)
-    }
-    
-    @objc func pinch(sender:UIPinchGestureRecognizer) {
-        if sender.state == .began || sender.state == .changed {
-            cameraNode.position = SCNVector3(CGFloat(cameraNode.position.x), CGFloat(cameraNode.position.y), CGFloat(cameraNode.position.z) * sender.scale)
-            sender.scale = 1
-        }
-    }
-    
-    @objc func pan(sender:UIPanGestureRecognizer) {
-        //if sender.state == .began || sender.state == .changed {
-            let translation = sender.translation(in: sender.view!)
-            for cube in gameScene.rootNode.childNodes(passingTest:
-                { (node, ballYesOrNo) -> Bool in
-                    if let name = node.name {
-                        return name.contains("Master")
-                    }
-                    return false
-                }) {
-                let x = Float(translation.x)
-                let y = Float(-translation.y)
-                let anglePan = (sqrt(pow(x,2)+pow(y,2)))*(Float)(Double.pi)/180.0
-                cube.rotation = SCNVector4(-y,x,0,anglePan)
-            }
-            for cube in gameScene.rootNode.childNodes(passingTest:
-                { (node, ballYesOrNo) -> Bool in
-                    if let name = node.name {
-                        return name.contains("Inner")
-                    }
-                    return false
-                }) {
-                let x = Float(translation.x)
-                let y = Float(-translation.y)
-                let anglePan = (sqrt(pow(x,2)+pow(y,2)))*(Float)(Double.pi)/180.0
-                cube.rotation = SCNVector4(-y,x, 0 ,anglePan)
-            }
-    }
-
-    @objc func rotate(sender:UIRotationGestureRecognizer) {
-        
     }
     
     static func makeAnswerNodeMaterial(forColor color: UIColor) -> SCNMaterial {
@@ -139,19 +91,14 @@ class GameViewController: UIViewController {
             titleNode.scale = SCNVector3Make(0.8, 0.8, 0.8)
             titleNode.position = SCNVector3(x: -23, y: 25, z: -70)
             titleNode.name = "Title"
-            //let myOmniLight = SCNLight()
-            //myOmniLight.type = SCNLight.LightType.directional
-            //myOmniLight.color = UIColor.yellow
-            //titleNode.light = myOmniLight
-            
             let newMaterial2 = SCNMaterial()
             newMaterial2.diffuse.contents = Constants.Colors.title
             titleNode.geometry?.firstMaterial = newMaterial2
             gameScene.rootNode.addChildNode(titleNode)
         }
 
-        let masterCube = SCNNode(geometry: SCNBox(width: 8, height: 8, length: 8, chamferRadius: 0))
-        let innerCube = SCNNode(geometry: SCNBox(width: 4, height: 4, length: 4, chamferRadius: 0))
+        let masterCube = SCNNode(geometry: SCNBox(width: 0, height: 0, length: 0, chamferRadius: 0))
+        let innerCube = SCNNode(geometry: SCNBox(width: 0, height: 0, length: 0, chamferRadius: 0))
         innerCube.geometry?.firstMaterial = activeNodeMaterials[0]
         masterCube.geometry?.firstMaterial = activeNodeMaterials[0]
         masterCube.name = "Master"
@@ -159,6 +106,8 @@ class GameViewController: UIViewController {
         innerCube.position = SCNVector3(0,-10,0)
         innerCube.light = SCNLight()
         innerCube.light!.type = SCNLight.LightType.ambient
+        innerCube.light!.temperature = 500
+        innerCube.light!.intensity = 500
         gameScene.rootNode.addChildNode(masterCube)
         gameScene.rootNode.addChildNode(innerCube)
 
@@ -178,7 +127,7 @@ class GameViewController: UIViewController {
                 cubeNode.geometry?.firstMaterial = showColor ?  materials[nodeColors[i]!] : activeNodeMaterials[0]
                 frameNode.geometry?.firstMaterial = newMaterial
                 
-                var position = SCNVector3(
+                let position = SCNVector3(
                     x: (Float(i % 4) - 1.5) * 2,
                     y: ((Float((i / 4) % 4)) - 1.5) * 2,
                     z: ((Float((i / 16) % 4)) - 1.5) * 2)
@@ -195,7 +144,6 @@ class GameViewController: UIViewController {
                     innerFrameNode.name = "Frame\(i)Copy"
                     innerCubeNode.scale = cubeScale
                     innerFrameNode.scale = frameScale
-                    //position = SCNVector3(position.x, position.y - 10, position.z)
                     innerCubeNode.position = position
                     innerFrameNode.position = position
                     innerCubeNode.geometry?.firstMaterial = showColor ?  materials[nodeColors[i]!] : activeNodeMaterials[0]
@@ -234,21 +182,79 @@ class GameViewController: UIViewController {
         }
     }
     
+    func switchTo(level: Int) {
+        if level == currentLvl { return }
+        
+    }
+    
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         let touch = touches.first!
         let location = touch.location(in: gameView)
         let hitList = gameView.hitTest(location, options: nil)
         
-        if let hitObject = hitList.first {
+        for hitObject in hitList {
             let node = hitObject.node
             if (node.name?.contains("Cube"))! {
-                if node.name!.contains("Copy") {
+                if node.name == "Copy" {
                     let name = String(node.name![..<node.name!.index(node.name!.endIndex, offsetBy: -4)])
                     nextColor(forNode: self.gameScene.rootNode.childNode(withName: name, recursively: true)!)
                 }
                 nextColor(forNode: node)
             }
+            if (node.name?.contains("Lvl"))! {
+                let lvl = Int(node.name![node.name!.index(node.name!.endIndex, offsetBy: 3)...])
+                self.switchTo(level: lvl!)
+            }
         }
+    }
+
+    func addGestures() {
+        let pinch = UIPinchGestureRecognizer(target: self, action: #selector(pinch(sender:)))
+        let pan = UIPanGestureRecognizer(target: self, action: #selector(pan(sender:)))
+        let rotate = UIRotationGestureRecognizer(target:self, action: #selector(rotate(sender:)))
+        self.gameView.addGestureRecognizer(pinch)
+        self.gameView.addGestureRecognizer(pan)
+        self.gameView.addGestureRecognizer(rotate)
+    }
+
+    @objc func pinch(sender:UIPinchGestureRecognizer) {
+        if sender.state == .began || sender.state == .changed {
+            cameraNode.position = SCNVector3(CGFloat(cameraNode.position.x), CGFloat(cameraNode.position.y), CGFloat(cameraNode.position.z) * sender.scale)
+            sender.scale = 1
+        }
+    }
+    
+    @objc func pan(sender:UIPanGestureRecognizer) {
+        //if sender.state == .began || sender.state == .changed {
+        let translation = sender.translation(in: sender.view!)
+        for cube in gameScene.rootNode.childNodes(passingTest:
+            { (node, ballYesOrNo) -> Bool in
+                if let name = node.name {
+                    return name.contains("Master")
+                }
+                return false
+        }) {
+            let x = Float(translation.x)
+            let y = Float(-translation.y)
+            let anglePan = (sqrt(pow(x,2)+pow(y,2)))*(Float)(Double.pi)/180.0
+            cube.rotation = SCNVector4(-y,x,0,anglePan)
+        }
+        for cube in gameScene.rootNode.childNodes(passingTest:
+            { (node, ballYesOrNo) -> Bool in
+                if let name = node.name {
+                    return name.contains("Inner")
+                }
+                return false
+        }) {
+            let x = Float(translation.x)
+            let y = Float(-translation.y)
+            let anglePan = (sqrt(pow(x,2)+pow(y,2)))*(Float)(Double.pi)/180.0
+            cube.rotation = SCNVector4(-y,x, 0 ,anglePan)
+        }
+    }
+    
+    @objc func rotate(sender:UIRotationGestureRecognizer) {
+        
     }
     
     override var shouldAutorotate: Bool {
