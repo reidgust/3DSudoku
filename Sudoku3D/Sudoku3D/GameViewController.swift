@@ -18,7 +18,6 @@ class GameViewController: UIViewController {
     var level : SudokuLevel?
     var targetCreationTime : TimeInterval = 0
     var nodeColors : [UIColor]?
-    let activeNodeMaterials = makeNodeMaterials()
     var currentLvl : Int = 0
     
     override func viewDidLoad() {
@@ -30,32 +29,6 @@ class GameViewController: UIViewController {
         initCamera()
         createGameObjects()
         addGestures()
-    }
-    
-    static func makeNodeMaterials() -> [SCNMaterial] {
-        var materials : [SCNMaterial] = []
-        let material1 = SCNMaterial()
-        material1.diffuse.contents = Constants.Colors.clear
-        materials.append(material1)
-        let material2 = SCNMaterial()
-        material2.diffuse.contents = Constants.Colors.fill1Selected
-        materials.append(material2)
-        let material3 = SCNMaterial()
-        material3.diffuse.contents = Constants.Colors.fill2Selected
-        materials.append(material3)
-        let material4 = SCNMaterial()
-        material4.diffuse.contents = Constants.Colors.fill3Selected
-        materials.append(material4)
-        let material5 = SCNMaterial()
-        material5.diffuse.contents = Constants.Colors.fill4Selected
-        materials.append(material5)
-        return materials
-    }
-    
-    static func makeAnswerNodeMaterial(forColor color: UIColor) -> SCNMaterial {
-        let material2 = SCNMaterial()
-        material2.diffuse.contents = color
-        return material2
     }
     
     func initView() {
@@ -80,7 +53,7 @@ class GameViewController: UIViewController {
     func createTitleBar() {
         let title = SCNScene(named: "art.scnassets/Title.dae")!
         let titleBar = SCNNode(geometry: SCNBox(width: 20, height: 10, length: 4, chamferRadius: 0.2))
-        titleBar.geometry?.firstMaterial = activeNodeMaterials[0]
+        titleBar.geometry?.firstMaterial?.diffuse.contents = Constants.Colors.clear
         titleBar.name = "TitleBar"
         titleBar.position = SCNVector3(0,35,-70)
         titleBar.light = SCNLight()
@@ -122,16 +95,11 @@ class GameViewController: UIViewController {
         let sceneObjects = SCNScene(named: "art.scnassets/Set.dae")!
         let frame = sceneObjects.rootNode.childNode(withName: "Frame", recursively: true)
         let cube = sceneObjects.rootNode.childNode(withName: "Cube", recursively: true)
-        nodeColors =
-        var materials : [UIColor:SCNMaterial] = [:]
-        for i in 0...3 {
-            materials[nodeColors[i]!] = GameViewController.makeAnswerNodeMaterial(forColor:nodeColors[i]!)
-        }
 
         let masterCube = SCNNode(geometry: SCNBox(width: 0, height: 0, length: 0, chamferRadius: 0))
         let innerCube = SCNNode(geometry: SCNBox(width: 0, height: 0, length: 0, chamferRadius: 0))
-        innerCube.geometry?.firstMaterial = activeNodeMaterials[0]
-        masterCube.geometry?.firstMaterial = activeNodeMaterials[0]
+        innerCube.geometry?.firstMaterial?.diffuse.contents = Constants.Colors.clear
+        masterCube.geometry?.firstMaterial?.diffuse.contents = Constants.Colors.clear
         masterCube.name = "Master"
         innerCube.name = "Inner"
         innerCube.position = SCNVector3(0,-10,0)
@@ -143,8 +111,6 @@ class GameViewController: UIViewController {
         gameScene.rootNode.addChildNode(innerCube)
 
         if let cubeGeometry = cube?.geometry, let frameGeometry = frame?.geometry {
-            let newMaterial = SCNMaterial()
-            newMaterial.diffuse.contents = Constants.Colors.selected
             for i in 0..<64 {
                 let cubeNode = SCNNode(geometry: cubeGeometry.copy() as? SCNGeometry)
                 let frameNode = SCNNode(geometry: frameGeometry.copy() as? SCNGeometry)
@@ -154,9 +120,9 @@ class GameViewController: UIViewController {
                 cubeNode.scale = cubeScale
                 let frameScale = SCNVector3Make(1, 1, 1)
                 frameNode.scale = frameScale
-                let showColor = arc4random_uniform(64) < 20
-                cubeNode.geometry?.firstMaterial = showColor ?  materials[nodeColors[i]!] : activeNodeMaterials[0]
-                frameNode.geometry?.firstMaterial = newMaterial
+                cubeNode.geometry?.firstMaterial = SCNMaterial()
+                cubeNode.geometry?.firstMaterial?.diffuse.contents = nodeColors![i]
+                frameNode.geometry?.firstMaterial?.diffuse.contents = Constants.Colors.frame
                 
                 let position = SCNVector3(
                     x: (Float(i % 4) - 1.5) * 2,
@@ -177,8 +143,9 @@ class GameViewController: UIViewController {
                     innerFrameNode.scale = frameScale
                     innerCubeNode.position = position
                     innerFrameNode.position = position
-                    innerCubeNode.geometry?.firstMaterial = showColor ?  materials[nodeColors[i]!] : activeNodeMaterials[0]
-                    innerFrameNode.geometry?.firstMaterial = newMaterial
+                    innerCubeNode.geometry?.firstMaterial = SCNMaterial()
+                    innerCubeNode.geometry?.firstMaterial?.diffuse.contents = nodeColors![i]
+                    innerFrameNode.geometry?.firstMaterial?.diffuse.contents = Constants.Colors.frame
                     innerCube.addChildNode(innerCubeNode)
                     innerCube.addChildNode(innerFrameNode)
                 }
@@ -188,28 +155,24 @@ class GameViewController: UIViewController {
     
     func nextColor(forNode node: SCNNode) {
         if !(node.name?.contains("Cube"))! { return }
-        var nodeIndex : Int?;
-        if node.name!.contains("Copy") {
-            let start = node.name!.index(node.name!.startIndex, offsetBy: 4)
-            let end = node.name!.index(node.name!.endIndex, offsetBy: -4)
-            nodeIndex = Int(node.name![start..<end])
-        } else {
-            nodeIndex = Int(node.name![node.name!.index(node.name!.startIndex, offsetBy: 4)...])
+        let currentColor = node.geometry?.firstMaterial?.diffuse.contents as! UIColor
+        var topIndex : Int = 0
+        switch nodeColors!.count {
+        case 8:
+            topIndex = 2
+        case 27:
+            topIndex = 3
+        case 64:
+            topIndex = 4
+        case 125:
+            topIndex = 5
+        default:
+            topIndex = 6
         }
-        if let material : SCNMaterial = node.geometry?.firstMaterial {
-            if let i : Int = activeNodeMaterials.firstIndex(of: material)
-            {
-                if i > -1 {
-                    let newIndex = (i + 1) % 5
-                    node.geometry!.firstMaterial = activeNodeMaterials[newIndex]
-                    
-                    if newIndex == 0 {
-                        nodeColors[nodeIndex!] = nil
-                    } else {
-                        nodeColors[nodeIndex!] = (node.geometry!.firstMaterial!.diffuse.contents as! UIColor)
-                    }
-                }
-            }
+        let activeNodeColors = [Constants.Colors.clear,Constants.Colors.fill1Selected,Constants.Colors.fill2Selected,Constants.Colors.fill4Selected,Constants.Colors.fill5Selected]
+        if let i = activeNodeColors.firstIndex(of: currentColor)
+        {
+            node.geometry?.firstMaterial?.diffuse.contents = activeNodeColors[(i + 1) % (topIndex+1)]
         }
     }
     

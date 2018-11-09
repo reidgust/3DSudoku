@@ -15,6 +15,7 @@ class SudokuLevel {
     static let context = appDelegate.persistentContainer.viewContext
     static let answerHander = AnswerHandler()
     var state : [UIColor] = []
+    //var colorScheme : [UIColor] = []
     var hasPassed : Bool = false
     var levelNumber : Int
     
@@ -34,10 +35,15 @@ class SudokuLevel {
             {
                 self.state = SudokuLevel.binaryToColorArray(withData: data)
             }
+            /*if let scheme = result.value(forKey: "colorScheme") as? Int
+            {
+                self.colorScheme = SudokuLevel.intToScheme(scheme)
+            }*/
         }
         else
         {
             state = SudokuLevel.answerHander.pickRandomSoln()
+            //colorScheme = Array(state[0...4])
             for i in 0..<size*size*size {
                 if arc4random_uniform(100) < percentMissing {
                     state[i] = Constants.Colors.clear
@@ -65,7 +71,7 @@ class SudokuLevel {
     func getLevelNumber() -> Int {
         return levelNumber
     }
-
+    
     func persistData() {
         if let result = getSavedLevel() {
             result.setValue(levelNumber, forKey: "levelNumber")
@@ -110,6 +116,10 @@ class SudokuLevel {
         }
     }
 
+    /*private static func colorArrayToInt(_ schemeTemp:[UIColor]) -> Int {
+        return 0
+    }*/
+    
     private static func colorArrayToBinary(_ stateTemp:[UIColor]) -> Data {
         var array : [Int] = []
         var temp : Int?
@@ -155,6 +165,10 @@ class SudokuLevel {
         }
     }
 
+    /*private static func intToScheme(_ val : Int) -> [UIColor] {
+        return []
+    }*/
+    
     private static func binaryToColorArray(withData data: Data) -> [UIColor]{
         var stateTemp : [UIColor] = []
         let array = NSKeyedUnarchiver.unarchiveObject(with: data)
