@@ -15,13 +15,15 @@ class GameViewController: UIViewController {
     var gameView : SCNView!
     var gameScene : SCNScene!
     var cameraNode : SCNNode!
+    var level : SudokuLevel?
     var targetCreationTime : TimeInterval = 0
-    var nodeColors : [UIColor?] = Array(repeating: nil, count: 64)
+    var nodeColors : [UIColor]?
     let activeNodeMaterials = makeNodeMaterials()
-    let answerHander = AnswerHandler()
     var currentLvl : Int = 0
     
     override func viewDidLoad() {
+        level = SudokuLevel(level: 3, size: 4, percentMissing: 20)
+        nodeColors = level!.getColors()
         super.viewDidLoad()
         initView()
         initScene()
@@ -120,7 +122,7 @@ class GameViewController: UIViewController {
         let sceneObjects = SCNScene(named: "art.scnassets/Set.dae")!
         let frame = sceneObjects.rootNode.childNode(withName: "Frame", recursively: true)
         let cube = sceneObjects.rootNode.childNode(withName: "Cube", recursively: true)
-        nodeColors = answerHander.pickRandomSoln()
+        nodeColors =
         var materials : [UIColor:SCNMaterial] = [:]
         for i in 0...3 {
             materials[nodeColors[i]!] = GameViewController.makeAnswerNodeMaterial(forColor:nodeColors[i]!)
