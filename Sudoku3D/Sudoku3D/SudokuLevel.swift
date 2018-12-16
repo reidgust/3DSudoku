@@ -17,10 +17,11 @@ class SudokuLevel {
     var state : [UIColor] = []
     var hasPassed : Bool = false
     var levelNumber : Int
+    var dimension : Int
     
     init(level: Int) {
         levelNumber = level
-        let size = level < 3 ? 3 : (level < 12 ? 4 : 5)
+        dimension = level < 3 ? 3 : (level < 12 ? 4 : 5)
         let percentMissing = 70
         /*if let result = getSavedLevel()
         {
@@ -39,8 +40,8 @@ class SudokuLevel {
         }
         else*/
         //{
-            state = SudokuLevel.answerHandler.pickRandomSoln(size: size)
-            for i in 0..<size*size*size {
+            state = SudokuLevel.answerHandler.pickRandomSoln(size: dimension)
+            for i in 0..<dimension*dimension*dimension {
                 if arc4random_uniform(100) < percentMissing {
                     state[i] = Constants.Colors.clear
                 }
@@ -52,6 +53,10 @@ class SudokuLevel {
         return state
     }
     
+    func getDimension() -> Int {
+        return dimension
+    }
+
     func setColor(_ color : UIColor, atIndex index : Int) -> Bool {
         state[index] = color
         // Don't just return hasPassed because allow the ability to re-win level.

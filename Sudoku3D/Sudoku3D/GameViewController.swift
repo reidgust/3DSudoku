@@ -22,6 +22,7 @@ class GameViewController: UIViewController {
     var currentLvl : Int = 0
     var xAngle: Float = 0
     var yAngle: Float = 0
+    static let activeNodeColors = [Constants.Colors.clear,Constants.Colors.fill1Selected,Constants.Colors.fill2Selected,Constants.Colors.fill3Selected,Constants.Colors.fill4Selected,Constants.Colors.fill5Selected]
     
     override func viewDidLoad() {
         loadCurrentLevel()
@@ -179,23 +180,10 @@ class GameViewController: UIViewController {
     func nextColor(forNode node: SCNNode) {
         if !(node.name?.contains("Cube"))! { return }
         let currentColor = node.geometry?.firstMaterial?.diffuse.contents as! UIColor
-        var topIndex : Int = 0
-        switch nodeColors!.count {
-        case 8:
-            topIndex = 2
-        case 27:
-            topIndex = 3
-        case 64:
-            topIndex = 4
-        case 125:
-            topIndex = 5
-        default:
-            topIndex = 6
-        }
-        let activeNodeColors = [Constants.Colors.clear,Constants.Colors.fill1Selected,Constants.Colors.fill2Selected,Constants.Colors.fill3Selected,Constants.Colors.fill4Selected,Constants.Colors.fill5Selected]
-        if let i = activeNodeColors.firstIndex(of: currentColor)
+        let topIndex : Int = level!.getDimension()
+        if let i = GameViewController.activeNodeColors.firstIndex(of: currentColor)
         {
-            let color = activeNodeColors[(i + 1) % (topIndex + 1)]
+            let color = GameViewController.activeNodeColors[(i + 1) % (topIndex + 1)]
             node.geometry?.firstMaterial?.diffuse.contents = color
             var nodeIndex : Int?;
             if node.name!.contains("Copy") {
