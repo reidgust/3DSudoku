@@ -11,17 +11,18 @@ import CoreData
 import UIKit
 
 class SudokuLevel {
-    static let appDelegate = UIApplication.shared.delegate as! AppDelegate
-    static let context = appDelegate.persistentContainer.viewContext
-    static let answerHander = AnswerHandler()
+    //static let appDelegate = UIApplication.shared.delegate as! AppDelegate
+    
+    static let answerHandler = AnswerHandler()
     var state : [UIColor] = []
-    //var colorScheme : [UIColor] = []
     var hasPassed : Bool = false
     var levelNumber : Int
     
-    init(level: Int, size: Int, percentMissing: Int) {
+    init(level: Int) {
         levelNumber = level
-        if let result = getSavedLevel()
+        let size = level < 3 ? 3 : (level < 12 ? 4 : 5)
+        let percentMissing = 70
+        /*if let result = getSavedLevel()
         {
             if let levelNumber = result.value(forKey: "levelNumber") as? Int
             {
@@ -35,29 +36,30 @@ class SudokuLevel {
             {
                 self.state = SudokuLevel.binaryToColorArray(withData: data)
             }
-            /*if let scheme = result.value(forKey: "colorScheme") as? Int
-            {
-                self.colorScheme = SudokuLevel.intToScheme(scheme)
-            }*/
         }
-        else
-        {
-            state = SudokuLevel.answerHander.pickRandomSoln()
-            //colorScheme = Array(state[0...4])
+        else*/
+        //{
+            state = SudokuLevel.answerHandler.pickRandomSoln(size: size)
             for i in 0..<size*size*size {
                 if arc4random_uniform(100) < percentMissing {
                     state[i] = Constants.Colors.clear
                 }
             }
-        }
+        //}
     }
     
     func getColors() -> [UIColor] {
         return state
     }
     
-    func setColor(_ color : UIColor, atIndex index : Int) {
+    func setColor(_ color : UIColor, atIndex index : Int) -> Bool {
         state[index] = color
+        // Don't just return hasPassed because allow the ability to re-win level.
+        if AnswerHandler.checkAnswer(state,mostRecentIndexChanged: index) {
+            hasPassed = true;
+            return true;
+        }
+        return false;
     }
     
     func getHasPassed() -> Bool {
@@ -81,14 +83,14 @@ class SudokuLevel {
         }
         else
         {
-            let newLevel = NSEntityDescription.insertNewObject(forEntityName: "Level", into: SudokuLevel.context)
+            let newLevel = NSEntityDescription.insertNewObject(forEntityName: "Level", into: AppDelegate.context)
             newLevel.setValue(hasPassed, forKey: "hasPassed")
             newLevel.setValue(levelNumber, forKey: "levelNumber")
             let binaryColorArray = SudokuLevel.colorArrayToBinary(state)
-            newLevel.setValue(binaryColorArray,forKey:"state")
+            newLevel.setValue(NSData(data:binaryColorArray),forKey:"state")
             do
             {
-                try SudokuLevel.context.save()
+                try AppDelegate.context.save()
                 print("SAVED")
             }
             catch
@@ -103,7 +105,7 @@ class SudokuLevel {
         request.returnsObjectsAsFaults = false
         do
         {
-            let results = try SudokuLevel.context.fetch(request)
+            let results = try AppDelegate.context.fetch(request)
             if results.count < 1 { return nil }
             for result in results as! [NSManagedObject] {
                 if result.value(forKey: "levelNumber") as? Int == levelNumber { return result }
@@ -115,10 +117,6 @@ class SudokuLevel {
             return nil
         }
     }
-
-    /*private static func colorArrayToInt(_ schemeTemp:[UIColor]) -> Int {
-        return 0
-    }*/
     
     private static func colorArrayToBinary(_ stateTemp:[UIColor]) -> Data {
         var array : [Int] = []
@@ -126,7 +124,7 @@ class SudokuLevel {
         for i in 0..<stateTemp.count {
             if i % 2 == 0 { temp = SudokuLevel.getColorCode(fromColor: stateTemp[i]) << 4}
             else {
-                array[i/2] = (temp! | (SudokuLevel.getColorCode(fromColor: stateTemp[i]) & 0xff))
+                array.append(temp! | (SudokuLevel.getColorCode(fromColor: stateTemp[i]) & 0xff))
                 temp = nil
             }
         }
@@ -164,10 +162,6 @@ class SudokuLevel {
             return 15
         }
     }
-
-    /*private static func intToScheme(_ val : Int) -> [UIColor] {
-        return []
-    }*/
     
     private static func binaryToColorArray(withData data: Data) -> [UIColor]{
         var stateTemp : [UIColor] = []

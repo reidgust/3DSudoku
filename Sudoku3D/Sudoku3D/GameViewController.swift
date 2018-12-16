@@ -8,6 +8,7 @@
 
 import UIKit
 import QuartzCore
+import CoreData
 import SceneKit
 
 class GameViewController: UIViewController {
@@ -19,9 +20,12 @@ class GameViewController: UIViewController {
     var targetCreationTime : TimeInterval = 0
     var nodeColors : [UIColor]?
     var currentLvl : Int = 0
+    var xAngle: Float = 0
+    var yAngle: Float = 0
     
     override func viewDidLoad() {
-        level = SudokuLevel(level: 3, size: 4, percentMissing: 20)
+        loadCurrentLevel()
+        level = SudokuLevel(level: currentLvl)
         nodeColors = level!.getColors()
         super.viewDidLoad()
         initView()
@@ -29,6 +33,25 @@ class GameViewController: UIViewController {
         initCamera()
         createGameObjects()
         addGestures()
+    }
+    
+    private func loadCurrentLevel() {
+        let request = NSFetchRequest<NSFetchRequestResult>(entityName: "Game")
+        request.returnsObjectsAsFaults = false
+        do
+        {
+            let results = try AppDelegate.context.fetch(request)
+            if results.count < 1 {
+                currentLvl = 3
+            }
+            for result in results as! [NSManagedObject] {
+                currentLvl = result.value(forKey: "currentLevel") as! Int
+            }
+        }
+        catch
+        {
+            fatalError("Can't Access CoreData: Game Progress")
+        }
     }
     
     func initView() {
@@ -63,13 +86,13 @@ class GameViewController: UIViewController {
         gameScene.rootNode.addChildNode(titleBar)
         for i in 1...12 {
             let lvlNode = SCNNode(geometry : (SCNSphere(radius: 2)))
-            switch i % 4 {
-            case 0:
+            switch i {
+            case 1...2:
                 lvlNode.geometry!.firstMaterial?.diffuse.contents = Constants.Colors.fill1
-            case 1:
+            case 3...11:
                 lvlNode.geometry!.firstMaterial?.diffuse.contents = Constants.Colors.fill2
-            case 2:
-                lvlNode.geometry!.firstMaterial?.diffuse.contents = Constants.Colors.fill3
+            case 12:
+                lvlNode.geometry!.firstMaterial?.diffuse.contents = Constants.Colors.fill4
             default:
                 lvlNode.geometry!.firstMaterial?.diffuse.contents = Constants.Colors.fill4
             }
@@ -169,10 +192,23 @@ class GameViewController: UIViewController {
         default:
             topIndex = 6
         }
-        let activeNodeColors = [Constants.Colors.clear,Constants.Colors.fill1Selected,Constants.Colors.fill2Selected,Constants.Colors.fill4Selected,Constants.Colors.fill5Selected]
+        let activeNodeColors = [Constants.Colors.clear,Constants.Colors.fill1Selected,Constants.Colors.fill2Selected,Constants.Colors.fill3Selected,Constants.Colors.fill4Selected,Constants.Colors.fill5Selected]
         if let i = activeNodeColors.firstIndex(of: currentColor)
         {
-            node.geometry?.firstMaterial?.diffuse.contents = activeNodeColors[(i + 1) % (topIndex+1)]
+            let color = activeNodeColors[(i + 1) % (topIndex + 1)]
+            node.geometry?.firstMaterial?.diffuse.contents = color
+            var nodeIndex : Int?;
+            if node.name!.contains("Copy") {
+                let start = node.name!.index(node.name!.startIndex, offsetBy: 4)
+                let end = node.name!.index(node.name!.endIndex, offsetBy: -4)
+                nodeIndex = Int(node.name![start..<end])
+            } else {
+                nodeIndex = Int(node.name![node.name!.index(node.name!.startIndex, offsetBy: 4)...])
+            }
+            if (self.level?.setColor(color, atIndex: nodeIndex!))! {
+                gameScene.rootNode.childNode(withName: "Frame1", recursively: true)!.geometry?.firstMaterial?.diffuse.contents = Constants.Colors.frameWon
+            }
+            //self.level?.persistData()
         }
     }
     
@@ -205,10 +241,8 @@ class GameViewController: UIViewController {
     func addGestures() {
         let pinch = UIPinchGestureRecognizer(target: self, action: #selector(pinch(sender:)))
         let pan = UIPanGestureRecognizer(target: self, action: #selector(pan(sender:)))
-        let rotate = UIRotationGestureRecognizer(target:self, action: #selector(rotate(sender:)))
         self.gameView.addGestureRecognizer(pinch)
         self.gameView.addGestureRecognizer(pan)
-        self.gameView.addGestureRecognizer(rotate)
     }
 
     @objc func pinch(sender:UIPinchGestureRecognizer) {
@@ -219,41 +253,32 @@ class GameViewController: UIViewController {
     }
     
     @objc func pan(sender:UIPanGestureRecognizer) {
-        if sender.state == .began || sender.state == .changed {
         let translation = sender.translation(in: sender.view!)
+        var newAngleX : Float = 0
+        var newAngleY : Float = 0
         for cube in gameScene.rootNode.childNodes(passingTest:
             { (node, ballYesOrNo) -> Bool in
                 if let name = node.name {
-                    return name.contains("Master")
+                    return name.contains("Inner") || name.contains("Master")
                 }
                 return false
         }) {
-            let x = Float(translation.x)
-            let y = Float(-translation.y)
-            let anglePan = (sqrt(pow(x,2)+pow(y,2)))*(Float)(Double.pi)/180.0
-            cube.rotation = SCNVector4(-y,x,0,anglePan)
+            newAngleX = (Float)(translation.y)*(Float)(Double.pi)/180.0
+            newAngleX += xAngle
+            newAngleY = (Float)(translation.x)*(Float)(Double.pi)/180.0
+            newAngleY += yAngle
+            
+            cube.eulerAngles.x = newAngleX
+            cube.eulerAngles.y = newAngleY
         }
-        for cube in gameScene.rootNode.childNodes(passingTest:
-            { (node, ballYesOrNo) -> Bool in
-                if let name = node.name {
-                    return name.contains("Inner")
-                }
-                return false
-        }) {
-            let x = Float(translation.x)
-            let y = Float(-translation.y)
-            let anglePan = (sqrt(pow(x,2)+pow(y,2)))*(Float)(Double.pi)/180.0
-            cube.rotation = SCNVector4(-y,x, 0 ,anglePan)
+        if (sender.state == .ended) {
+            xAngle = newAngleX
+            yAngle = newAngleY
         }
-        }
-    }
-    
-    @objc func rotate(sender:UIRotationGestureRecognizer) {
-        
     }
     
     override var shouldAutorotate: Bool {
-        return true
+        return false
     }
     
     override var prefersStatusBarHidden: Bool {
@@ -261,11 +286,7 @@ class GameViewController: UIViewController {
     }
     
     override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
-        if UIDevice.current.userInterfaceIdiom == .phone {
-            return .allButUpsideDown
-        } else {
-            return .all
-        }
+        return .portrait
     }
 
 }
