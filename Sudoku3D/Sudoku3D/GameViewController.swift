@@ -36,23 +36,52 @@ class GameViewController: UIViewController {
         addGestures()
     }
     
-    private func loadCurrentLevel() {
+    override func viewWillDisappear(_ animated: Bool) {
+        level?.persistData()
+        persistData()
+    }
+    
+    private func persistData(hasPaid : Bool? = nil) {
+        if let result = loadCurrentLevel() {
+            result.setValue(level?.getLevelNumber(), forKey: "currentLevel")
+        }
+        else
+        {
+            let newGame = NSEntityDescription.insertNewObject(forEntityName: "Game", into: AppDelegate.context)
+            if let hasPaid = hasPaid {
+                newGame.setValue(hasPaid, forKey: "hasPaid")
+            }
+            newGame.setValue(level!.getLevelNumber(), forKey: "currentLevel")
+            do
+            {
+                try AppDelegate.context.save()
+                print("SAVED")
+            }
+            catch
+            {
+                //TODO: Error handling.
+            }
+        }
+    }
+    
+    private func loadCurrentLevel() -> NSManagedObject? {
         let request = NSFetchRequest<NSFetchRequestResult>(entityName: "Game")
         request.returnsObjectsAsFaults = false
         do
         {
-            let results = try AppDelegate.context.fetch(request)
-            if results.count < 1 {
+            let result = try AppDelegate.context.fetch(request)
+            if result.count < 1 {
                 currentLvl = 3
+                return nil
             }
-            for result in results as! [NSManagedObject] {
-                currentLvl = result.value(forKey: "currentLevel") as! Int
-            }
+            currentLvl = (result[0] as! NSManagedObject).value(forKey: "currentLevel") as! Int
+            return result[0] as? NSManagedObject
         }
         catch
         {
             fatalError("Can't Access CoreData: Game Progress")
         }
+        return nil
     }
     
     func initView() {
@@ -135,7 +164,7 @@ class GameViewController: UIViewController {
         gameScene.rootNode.addChildNode(innerCube)
 
         if let cubeGeometry = cube?.geometry, let frameGeometry = frame?.geometry {
-            for i in 0..<64 {
+            for i in 0..<level!.getSize() {
                 let cubeNode = SCNNode(geometry: cubeGeometry.copy() as? SCNGeometry)
                 let frameNode = SCNNode(geometry: frameGeometry.copy() as? SCNGeometry)
                 cubeNode.name = "Cube\(i)"
@@ -177,6 +206,38 @@ class GameViewController: UIViewController {
         }
     }
     
+    func changeAllCubeColors() {
+        let names: [String] = ["Master","Inner"]
+        for i in 0..<names.count {
+            var changedFrame = false
+            for node in gameScene.rootNode.childNode(withName: names[i], recursively: true)!.childNodes{
+                if (node.name?.contains("Cube"))! {
+                    if let nodeIndex = getCubeNumber(node){
+                        node.geometry?.firstMaterial?.diffuse.contents = nodeColors![nodeIndex]
+                    }
+                }
+                if (!changedFrame && (node.name?.contains("Frame"))!) {
+                    changedFrame = true
+                    if level!.getHasPassed() {
+                        node.geometry?.firstMaterial?.diffuse.contents = Constants.Colors.frameWon
+                    } else {
+                        node.geometry?.firstMaterial?.diffuse.contents = Constants.Colors.frame
+                    }
+                }
+            }
+        }
+    }
+    
+    func getCubeNumber(_ node: SCNNode) -> Int? {
+        if node.name!.contains("Copy") {
+            let start = node.name!.index(node.name!.startIndex, offsetBy: 4)
+            let end = node.name!.index(node.name!.endIndex, offsetBy: -4)
+            return Int(node.name![start..<end])
+        } else {
+            return Int(node.name![node.name!.index(node.name!.startIndex, offsetBy: 4)...])
+        }
+    }
+    
     func nextColor(forNode node: SCNNode) {
         if !(node.name?.contains("Cube"))! { return }
         let currentColor = node.geometry?.firstMaterial?.diffuse.contents as! UIColor
@@ -185,24 +246,19 @@ class GameViewController: UIViewController {
         {
             let color = GameViewController.activeNodeColors[(i + 1) % (topIndex + 1)]
             node.geometry?.firstMaterial?.diffuse.contents = color
-            var nodeIndex : Int?;
-            if node.name!.contains("Copy") {
-                let start = node.name!.index(node.name!.startIndex, offsetBy: 4)
-                let end = node.name!.index(node.name!.endIndex, offsetBy: -4)
-                nodeIndex = Int(node.name![start..<end])
-            } else {
-                nodeIndex = Int(node.name![node.name!.index(node.name!.startIndex, offsetBy: 4)...])
-            }
+            let nodeIndex = getCubeNumber(node)
             if (self.level?.setColor(color, atIndex: nodeIndex!))! {
                 gameScene.rootNode.childNode(withName: "Frame1", recursively: true)!.geometry?.firstMaterial?.diffuse.contents = Constants.Colors.frameWon
             }
-            //self.level?.persistData()
         }
     }
     
     func switchTo(level: Int) {
-        if level == currentLvl { return }
-        
+        if level == self.level?.levelNumber { return }
+        //self.level?.persistData()
+        self.level = SudokuLevel(level: level)
+        nodeColors = self.level?.getColors()
+        changeAllCubeColors()
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -219,8 +275,8 @@ class GameViewController: UIViewController {
                 }
                 nextColor(forNode: node)
             }
-            if (node.name?.contains("Lvl"))! {
-                let lvl = Int(node.name![node.name!.index(node.name!.endIndex, offsetBy: 3)...])
+            if (node.name?.contains("lvl"))! {
+                let lvl = Int(node.name![node.name!.index(node.name!.startIndex, offsetBy: 3)...])
                 self.switchTo(level: lvl!)
             }
         }

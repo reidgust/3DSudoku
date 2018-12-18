@@ -56,6 +56,10 @@ class SudokuLevel {
     func getDimension() -> Int {
         return dimension
     }
+    
+    func getSize() -> Int {
+        return dimension * dimension * dimension
+    }
 
     func setColor(_ color : UIColor, atIndex index : Int) -> Bool {
         state[index] = color

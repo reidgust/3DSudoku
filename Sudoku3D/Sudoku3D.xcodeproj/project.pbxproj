@@ -18,8 +18,8 @@
 		300B7871218D176B0037205C /* Sudoku3DUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 300B7870218D176B0037205C /* Sudoku3DUITests.swift */; };
 		300B7883218EAB390037205C /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 300B7882218EAB390037205C /* Constants.swift */; };
 		3032412421C57CA100A87762 /* Answers5.json in Resources */ = {isa = PBXBuildFile; fileRef = 3032412321C57CA100A87762 /* Answers5.json */; };
+		3032412621C95B5400A87762 /* SudokuLevel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3032412521C95B5400A87762 /* SudokuLevel.swift */; };
 		306F0F4F21950B29000916FF /* LevelProgress.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 306F0F4D21950B29000916FF /* LevelProgress.xcdatamodeld */; };
-		306F0F72219538C4000916FF /* SudokuLevel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 306F0F71219538C4000916FF /* SudokuLevel.swift */; };
 		30FE360C21918A9A00114A94 /* AnswerHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30FE360B21918A9A00114A94 /* AnswerHandler.swift */; };
 /* End PBXBuildFile section */
 
@@ -58,8 +58,8 @@
 		300B7872218D176B0037205C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		300B7882218EAB390037205C /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		3032412321C57CA100A87762 /* Answers5.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Answers5.json; sourceTree = "<group>"; };
+		3032412521C95B5400A87762 /* SudokuLevel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SudokuLevel.swift; sourceTree = "<group>"; };
 		306F0F4E21950B29000916FF /* LevelProgress.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = LevelProgress.xcdatamodel; sourceTree = "<group>"; };
-		306F0F71219538C4000916FF /* SudokuLevel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SudokuLevel.swift; sourceTree = "<group>"; };
 		30FE360B21918A9A00114A94 /* AnswerHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnswerHandler.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -111,19 +111,19 @@
 		300B784D218D176A0037205C /* Sudoku3D */ = {
 			isa = PBXGroup;
 			children = (
+				300B7854218D176A0037205C /* Main.storyboard */,
+				300B7859218D176A0037205C /* LaunchScreen.storyboard */,
 				3032412321C57CA100A87762 /* Answers5.json */,
 				300AC1D42191E3F6001577B5 /* AnswersSimple.json */,
-				300B784E218D176A0037205C /* AppDelegate.swift */,
-				300B7850218D176A0037205C /* art.scnassets */,
-				300B7852218D176A0037205C /* GameViewController.swift */,
-				300B7854218D176A0037205C /* Main.storyboard */,
-				300B7857218D176A0037205C /* Assets.xcassets */,
-				300B7859218D176A0037205C /* LaunchScreen.storyboard */,
-				300B785C218D176A0037205C /* Info.plist */,
-				300B7882218EAB390037205C /* Constants.swift */,
-				30FE360B21918A9A00114A94 /* AnswerHandler.swift */,
 				306F0F4D21950B29000916FF /* LevelProgress.xcdatamodeld */,
-				306F0F71219538C4000916FF /* SudokuLevel.swift */,
+				300B7882218EAB390037205C /* Constants.swift */,
+				300B784E218D176A0037205C /* AppDelegate.swift */,
+				300B7852218D176A0037205C /* GameViewController.swift */,
+				30FE360B21918A9A00114A94 /* AnswerHandler.swift */,
+				3032412521C95B5400A87762 /* SudokuLevel.swift */,
+				300B785C218D176A0037205C /* Info.plist */,
+				300B7857218D176A0037205C /* Assets.xcassets */,
+				300B7850218D176A0037205C /* art.scnassets */,
 			);
 			path = Sudoku3D;
 			sourceTree = "<group>";
@@ -280,8 +280,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				306F0F72219538C4000916FF /* SudokuLevel.swift in Sources */,
 				30FE360C21918A9A00114A94 /* AnswerHandler.swift in Sources */,
+				3032412621C95B5400A87762 /* SudokuLevel.swift in Sources */,
 				300B7853218D176A0037205C /* GameViewController.swift in Sources */,
 				300B784F218D176A0037205C /* AppDelegate.swift in Sources */,
 				306F0F4F21950B29000916FF /* LevelProgress.xcdatamodeld in Sources */,
