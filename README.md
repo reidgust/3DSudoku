@@ -1,3 +1,7 @@
 # SUDOKU3D
 What do you get when you cross a rubiks cube with a sudoku?
-![](Sudoku.gif)
+A level is won when every color is represented in every column, row, and depth. 
+Center cubes are duplicated so that they can be clicked. 
+Good luck!
+![](3x3.gif)
+![](Win.gif)
