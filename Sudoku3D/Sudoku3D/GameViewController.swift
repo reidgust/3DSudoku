@@ -189,6 +189,8 @@ class GameViewController: UIViewController {
         tinyCube.light!.type = SCNLight.LightType.ambient
         tinyCube.light!.temperature = 500
         tinyCube.light!.intensity = 500
+        tinyCube.eulerAngles.x = xAngle
+        tinyCube.eulerAngles.y = yAngle
         gameScene.rootNode.addChildNode(tinyCube)
         return tinyCube
     }

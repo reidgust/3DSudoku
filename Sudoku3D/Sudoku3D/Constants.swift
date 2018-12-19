@@ -15,8 +15,8 @@ struct Constants {
         static let title = UIColor(red: 131/255, green: 0, blue: 1, alpha: 1)
         // Grey
         static let selected = UIColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 1)
-        // Purple
-        static let frame = UIColor(red: 131/255, green: 0, blue: 1, alpha: 1)
+        // Wood
+        static let frame = UIColor(red: 50/255, green: 50/255, blue: 50/255, alpha: 1)
         // Gold
         static let frameWon = UIColor(red: 249/255, green: 166/255, blue: 2/255, alpha:1)
         // Green
