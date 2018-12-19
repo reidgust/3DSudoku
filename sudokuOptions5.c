@@ -83,7 +83,7 @@ void printAnswerVisual() {
 void printAnswer() {
     fprintf(f,"[");
     for (int i=0; i < 25; i++) {
-        fprintf(f,"%x",validRows[workingSet[i]]);
+        fprintf(f,"%u",validRows[workingSet[i]]);
         if (i != 24) fprintf(f,",");
     }
     fprintf(f,"],");

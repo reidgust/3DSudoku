@@ -22,7 +22,7 @@ class SudokuLevel {
     init(level: Int) {
         levelNumber = level
         dimension = level < 3 ? 3 : (level < 12 ? 4 : 5)
-        let percentMissing = 3
+        let percentMissing = 60
         /*if let result = getSavedLevel()
         {
             if let levelNumber = result.value(forKey: "levelNumber") as? Int
