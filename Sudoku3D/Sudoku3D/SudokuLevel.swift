@@ -22,7 +22,7 @@ class SudokuLevel {
     init(level: Int) {
         levelNumber = level
         dimension = level < 3 ? 3 : (level < 12 ? 4 : 5)
-        let percentMissing = 70
+        let percentMissing = 3
         /*if let result = getSavedLevel()
         {
             if let levelNumber = result.value(forKey: "levelNumber") as? Int
@@ -49,8 +49,12 @@ class SudokuLevel {
         //}
     }
     
-    func getColors() -> [UIColor] {
-        return state
+    func getColour(_ i:Int) -> UIColor {
+        return state[i]
+    }
+    
+    func setColor(_ i:Int, colour : UIColor) {
+        state[i] = colour
     }
     
     func getDimension() -> Int {

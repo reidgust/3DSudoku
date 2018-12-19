@@ -31,8 +31,16 @@ class AnswerHandler {
                 Constants.Colors.fill2,Constants.Colors.fill1,Constants.Colors.clear,Constants.Colors.clear]
         case 3:
             // TODO: Placeholder text, not correct.
-            randVal = AnswerHandler.validAnswers4[Int(arc4random_uniform(UInt32(AnswerHandler.validAnswers4.count)))]
-            numBits = 2
+            return [Constants.Colors.fill1,Constants.Colors.fill2,Constants.Colors.clear,
+                       Constants.Colors.fill3,Constants.Colors.fill1,Constants.Colors.clear,
+                       Constants.Colors.fill2,Constants.Colors.clear,Constants.Colors.clear,
+                       Constants.Colors.fill2,Constants.Colors.clear,Constants.Colors.clear,
+                       Constants.Colors.clear,Constants.Colors.clear,Constants.Colors.clear,
+                       Constants.Colors.clear,Constants.Colors.fill1,Constants.Colors.clear,
+                       Constants.Colors.clear,Constants.Colors.clear,Constants.Colors.clear,
+                       Constants.Colors.clear,Constants.Colors.clear,Constants.Colors.clear,
+                       Constants.Colors.clear,Constants.Colors.clear,Constants.Colors.fill2]
+            //numBits = 2
         case 4:
             if AnswerHandler.validAnswers4.count == 0 {AnswerHandler.loadAnswers(dim:4)}
             randVal = AnswerHandler.validAnswers4[Int(arc4random_uniform(UInt32(AnswerHandler.validAnswers4.count)))]

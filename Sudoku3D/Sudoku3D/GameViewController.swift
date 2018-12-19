@@ -18,16 +18,17 @@ class GameViewController: UIViewController {
     var cameraNode : SCNNode!
     var level : SudokuLevel?
     var targetCreationTime : TimeInterval = 0
-    var nodeColors : [UIColor]?
-    var currentLvl : Int = 0
     var xAngle: Float = 0
     var yAngle: Float = 0
+    let sceneObjects = SCNScene(named: "art.scnassets/Set.dae")!
+    var frame : SCNNode?
+    var cube : SCNNode?
     static let activeNodeColors = [Constants.Colors.clear,Constants.Colors.fill1Selected,Constants.Colors.fill2Selected,Constants.Colors.fill3Selected,Constants.Colors.fill4Selected,Constants.Colors.fill5Selected]
     
     override func viewDidLoad() {
         loadCurrentLevel()
-        level = SudokuLevel(level: currentLvl)
-        nodeColors = level!.getColors()
+        cube = sceneObjects.rootNode.childNode(withName: "Cube", recursively: true)
+        frame = sceneObjects.rootNode.childNode(withName: "Frame", recursively: true)
         super.viewDidLoad()
         initView()
         initScene()
@@ -71,10 +72,10 @@ class GameViewController: UIViewController {
         {
             let result = try AppDelegate.context.fetch(request)
             if result.count < 1 {
-                currentLvl = 3
+                level = SudokuLevel(level: 3)
                 return nil
             }
-            currentLvl = (result[0] as! NSManagedObject).value(forKey: "currentLevel") as! Int
+            level = SudokuLevel(level: (result[0] as! NSManagedObject).value(forKey: "currentLevel") as! Int)
             return result[0] as? NSManagedObject
         }
         catch
@@ -142,67 +143,154 @@ class GameViewController: UIViewController {
         }
     }
     
-    func createGameObjects() {
-        createTitleBar()
-
-        let sceneObjects = SCNScene(named: "art.scnassets/Set.dae")!
-        let frame = sceneObjects.rootNode.childNode(withName: "Frame", recursively: true)
-        let cube = sceneObjects.rootNode.childNode(withName: "Cube", recursively: true)
-
+    func getCubePosition(index i: Int) -> SCNVector3{
+        let dim = level!.getDimension()
+        let scale : Float = dim == 5 ? 1.5 : 2
+        let offset = (Float(dim) / scale) - 0.5
+        let position = SCNVector3(
+            x: (Float(i % dim) - offset) * scale,
+            y: ((Float((i / dim) % dim)) - offset) * scale,
+            z: ((Float(((i / (dim*dim)) % dim)) - offset) * scale))
+        return position
+    }
+    
+    func getMasterCube(make:Bool) -> SCNNode? {
+        if let master = self.gameScene.rootNode.childNode(withName: "Master", recursively: true) {return master}
+        if !make {return nil}
         let masterCube = SCNNode(geometry: SCNBox(width: 0, height: 0, length: 0, chamferRadius: 0))
-        let innerCube = SCNNode(geometry: SCNBox(width: 0, height: 0, length: 0, chamferRadius: 0))
-        innerCube.geometry?.firstMaterial?.diffuse.contents = Constants.Colors.clear
         masterCube.geometry?.firstMaterial?.diffuse.contents = Constants.Colors.clear
         masterCube.name = "Master"
+        gameScene.rootNode.addChildNode(masterCube)
+        return masterCube
+    }
+    
+    func getInnerCube(make:Bool) -> SCNNode? {
+        if let inner = self.gameScene.rootNode.childNode(withName: "Inner", recursively: true) {return inner}
+        if !make {return nil}
+        let innerCube = SCNNode(geometry: SCNBox(width: 0, height: 0, length: 0, chamferRadius: 0))
+        innerCube.geometry?.firstMaterial?.diffuse.contents = Constants.Colors.clear
         innerCube.name = "Inner"
         innerCube.position = SCNVector3(0,-10,0)
         innerCube.light = SCNLight()
         innerCube.light!.type = SCNLight.LightType.ambient
         innerCube.light!.temperature = 500
         innerCube.light!.intensity = 500
-        gameScene.rootNode.addChildNode(masterCube)
         gameScene.rootNode.addChildNode(innerCube)
-
+        return innerCube
+    }
+    
+    func getTinyCube(make:Bool) -> SCNNode? {
+        if let tinyCube = self.gameScene.rootNode.childNode(withName: "Tiny", recursively: true) {return tinyCube}
+        if !make {return nil}
+        let tinyCube = SCNNode(geometry: SCNBox(width: 0, height: 0, length: 0, chamferRadius: 0))
+        tinyCube.geometry?.firstMaterial?.diffuse.contents = Constants.Colors.clear
+        tinyCube.name = "Tiny"
+        tinyCube.position = SCNVector3(0,-15,0)
+        tinyCube.light = SCNLight()
+        tinyCube.light!.type = SCNLight.LightType.ambient
+        tinyCube.light!.temperature = 500
+        tinyCube.light!.intensity = 500
+        gameScene.rootNode.addChildNode(tinyCube)
+        return tinyCube
+    }
+    
+    func createAndPlaceCube(index i: Int){
+        let masterCube = getMasterCube(make:true)
         if let cubeGeometry = cube?.geometry, let frameGeometry = frame?.geometry {
-            for i in 0..<level!.getSize() {
-                let cubeNode = SCNNode(geometry: cubeGeometry.copy() as? SCNGeometry)
-                let frameNode = SCNNode(geometry: frameGeometry.copy() as? SCNGeometry)
-                cubeNode.name = "Cube\(i)"
-                frameNode.name = "Frame\(i)"
-                let cubeScale = SCNVector3Make(2, 2, 2)
-                cubeNode.scale = cubeScale
-                let frameScale = SCNVector3Make(1, 1, 1)
-                frameNode.scale = frameScale
-                cubeNode.geometry?.firstMaterial = SCNMaterial()
-                cubeNode.geometry?.firstMaterial?.diffuse.contents = nodeColors![i]
-                frameNode.geometry?.firstMaterial?.diffuse.contents = Constants.Colors.frame
-                
-                let position = SCNVector3(
-                    x: (Float(i % 4) - 1.5) * 2,
-                    y: ((Float((i / 4) % 4)) - 1.5) * 2,
-                    z: ((Float((i / 16) % 4)) - 1.5) * 2)
-                cubeNode.position = position
-                frameNode.position = position
-                
-                masterCube.addChildNode(cubeNode)
-                masterCube.addChildNode(frameNode)
-                
-                if (i%4 == 1 || i%4 == 2) && ((i/4)%4 == 1 || (i/4)%4 == 2) && ((i/16)%4 == 1 || (i/16)%4 == 2)  {
-                    let innerCubeNode = SCNNode(geometry: cubeGeometry.copy() as? SCNGeometry)
-                    let innerFrameNode = SCNNode(geometry: frameGeometry.copy() as? SCNGeometry)
-                    innerCubeNode.name = "Cube\(i)Copy"
-                    innerFrameNode.name = "Frame\(i)Copy"
-                    innerCubeNode.scale = cubeScale
-                    innerFrameNode.scale = frameScale
-                    innerCubeNode.position = position
-                    innerFrameNode.position = position
-                    innerCubeNode.geometry?.firstMaterial = SCNMaterial()
-                    innerCubeNode.geometry?.firstMaterial?.diffuse.contents = nodeColors![i]
-                    innerFrameNode.geometry?.firstMaterial?.diffuse.contents = Constants.Colors.frame
-                    innerCube.addChildNode(innerCubeNode)
-                    innerCube.addChildNode(innerFrameNode)
+            let cubeNode = SCNNode(geometry: cubeGeometry.copy() as? SCNGeometry)
+            let frameNode = SCNNode(geometry: frameGeometry.copy() as? SCNGeometry)
+            cubeNode.name = "Cube\(i)"
+            frameNode.name = "Frame\(i)"
+            let dim = level!.getDimension()
+            // Change this to 1.5 for dim 5 if necessary.
+            let scale : Float = dim == 5 ? 2 : 2
+            let cubeScale = SCNVector3Make(scale, scale, scale)
+            cubeNode.scale = cubeScale
+            let frameScale = SCNVector3Make(scale/2, scale/2, scale/2)
+            frameNode.scale = frameScale
+            cubeNode.geometry?.firstMaterial = SCNMaterial()
+            cubeNode.geometry?.firstMaterial?.diffuse.contents = level!.getColour(i)
+            frameNode.geometry?.firstMaterial?.diffuse.contents = level!.getHasPassed() ? Constants.Colors.frameWon : Constants.Colors.frame
+            
+            cubeNode.position = getCubePosition(index:i)
+            frameNode.position = cubeNode.position
+            
+            masterCube!.addChildNode(cubeNode)
+            masterCube!.addChildNode(frameNode)
+            
+            if (i%dim != 0 && i%4 != dim-1) && ((i/dim)%dim != 0 && (i/dim)%dim != dim-1) && ((i/(dim*dim))%dim != 0 && (i/(dim*dim))%dim != dim-1)  {
+                let innerCube = getInnerCube(make:true)
+                let innerCubeNode = SCNNode(geometry: cubeGeometry.copy() as? SCNGeometry)
+                let innerFrameNode = SCNNode(geometry: frameGeometry.copy() as? SCNGeometry)
+                innerCubeNode.name = "Cube\(i)Copy"
+                innerFrameNode.name = "Frame\(i)Copy"
+                innerCubeNode.scale = cubeScale
+                innerFrameNode.scale = frameScale
+                innerCubeNode.position = cubeNode.position
+                innerFrameNode.position = cubeNode.position
+                innerCubeNode.geometry?.firstMaterial = SCNMaterial()
+                innerCubeNode.geometry?.firstMaterial?.diffuse.contents = level!.getColour(i)
+                innerFrameNode.geometry?.firstMaterial?.diffuse.contents = Constants.Colors.frame
+                innerCube!.addChildNode(innerCubeNode)
+                innerCube!.addChildNode(innerFrameNode)
+            }
+            if dim == 5 && i == 62 {
+                let tinyCube = getTinyCube(make:true)
+                let tinyCubeNode = SCNNode(geometry: cubeGeometry.copy() as? SCNGeometry)
+                let tinyFrameNode = SCNNode(geometry: frameGeometry.copy() as? SCNGeometry)
+                tinyCubeNode.name = "Cube\(i)Tiny"
+                tinyFrameNode.name = "Frame\(i)Tiny"
+                tinyCubeNode.scale = cubeScale
+                tinyFrameNode.scale = frameScale
+                tinyCubeNode.position = cubeNode.position
+                tinyFrameNode.position = cubeNode.position
+                tinyCubeNode.geometry?.firstMaterial = SCNMaterial()
+                tinyCubeNode.geometry?.firstMaterial?.diffuse.contents = level!.getColour(i)
+                tinyFrameNode.geometry?.firstMaterial?.diffuse.contents = Constants.Colors.frame
+                tinyCube!.addChildNode(tinyCubeNode)
+                tinyCube!.addChildNode(tinyFrameNode)
+            }
+        }
+    }
+    
+    func moveCube(index: Int) {
+        let position = getCubePosition(index: index)
+        var cube = getMasterCube(make: false)!
+        cube.childNode(withName: "Cube\(index)", recursively: true)!.position = position
+        cube.childNode(withName: "Frame\(index)", recursively: true)!.position = position
+        cube = getInnerCube(make:false)!
+        if let inner = cube.childNode(withName: "Cube\(index)Frame", recursively: true){
+            inner.position = position
+        }
+        if let inner = cube.childNode(withName: "Frame\(index)Frame", recursively: true){
+            inner.position = position
+        }
+    }
+
+    func removeCubes(oldSize: Int) {
+        if oldSize == 125 {
+            if let tiny = getTinyCube(make:false) {
+                for node in tiny.childNodes {
+                    node.removeFromParentNode()
+                }
+                tiny.removeFromParentNode()
+            }
+        }
+        for i in 0...1 {
+            let cube = i==0 ? getMasterCube(make: false)! : getInnerCube(make:false)!
+            for node in cube.childNodes {
+                if getCubeNumber(node) != nil {
+                    node.removeFromParentNode()
                 }
             }
+        }
+    }
+    
+    func createGameObjects() {
+        createTitleBar()
+
+        for i in 0..<level!.getSize() {
+            createAndPlaceCube(index: i)
         }
     }
     
@@ -213,7 +301,7 @@ class GameViewController: UIViewController {
             for node in gameScene.rootNode.childNode(withName: names[i], recursively: true)!.childNodes{
                 if (node.name?.contains("Cube"))! {
                     if let nodeIndex = getCubeNumber(node){
-                        node.geometry?.firstMaterial?.diffuse.contents = nodeColors![nodeIndex]
+                        node.geometry?.firstMaterial?.diffuse.contents = level!.getColour(nodeIndex)
                     }
                 }
                 if (!changedFrame && (node.name?.contains("Frame"))!) {
@@ -229,12 +317,12 @@ class GameViewController: UIViewController {
     }
     
     func getCubeNumber(_ node: SCNNode) -> Int? {
-        if node.name!.contains("Copy") {
-            let start = node.name!.index(node.name!.startIndex, offsetBy: 4)
+        if (node.name!.contains("Copy") || node.name!.contains("Tiny")) {
+            let start = node.name!.index(node.name!.startIndex, offsetBy: node.name!.contains("Cube") ? 4 : 5)
             let end = node.name!.index(node.name!.endIndex, offsetBy: -4)
             return Int(node.name![start..<end])
         } else {
-            return Int(node.name![node.name!.index(node.name!.startIndex, offsetBy: 4)...])
+            return Int(node.name![node.name!.index(node.name!.startIndex, offsetBy: node.name!.contains("Cube") ? 4 : 5)...])
         }
     }
     
@@ -253,11 +341,20 @@ class GameViewController: UIViewController {
         }
     }
     
+    func updateNumberOfCubeObjects(currentSize:Int, newSize:Int) {
+        if currentSize == newSize {return}
+        removeCubes(oldSize: currentSize)
+        for i in 0..<newSize {
+            createAndPlaceCube(index:i)
+        }
+    }
+    
     func switchTo(level: Int) {
         if level == self.level?.levelNumber { return }
+        let currentSize = self.level?.getSize()
         //self.level?.persistData()
         self.level = SudokuLevel(level: level)
-        nodeColors = self.level?.getColors()
+        updateNumberOfCubeObjects(currentSize: currentSize!, newSize: (self.level?.getSize())!)
         changeAllCubeColors()
     }
     
