@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		300AC1D52191E3F6001577B5 /* AnswersSimple.json in Resources */ = {isa = PBXBuildFile; fileRef = 300AC1D42191E3F6001577B5 /* AnswersSimple.json */; };
+		300AC1D52191E3F6001577B5 /* Answers4.json in Resources */ = {isa = PBXBuildFile; fileRef = 300AC1D42191E3F6001577B5 /* Answers4.json */; };
 		300B784F218D176A0037205C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 300B784E218D176A0037205C /* AppDelegate.swift */; };
 		300B7851218D176A0037205C /* art.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = 300B7850218D176A0037205C /* art.scnassets */; };
 		300B7853218D176A0037205C /* GameViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 300B7852218D176A0037205C /* GameViewController.swift */; };
@@ -41,7 +41,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		300AC1D42191E3F6001577B5 /* AnswersSimple.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = AnswersSimple.json; sourceTree = "<group>"; };
+		300AC1D42191E3F6001577B5 /* Answers4.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Answers4.json; sourceTree = "<group>"; };
 		300B784B218D176A0037205C /* Sudoku3D.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sudoku3D.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		300B784E218D176A0037205C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		300B7850218D176A0037205C /* art.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = art.scnassets; sourceTree = "<group>"; };
@@ -114,7 +114,7 @@
 				300B7854218D176A0037205C /* Main.storyboard */,
 				300B7859218D176A0037205C /* LaunchScreen.storyboard */,
 				3032412321C57CA100A87762 /* Answers5.json */,
-				300AC1D42191E3F6001577B5 /* AnswersSimple.json */,
+				300AC1D42191E3F6001577B5 /* Answers4.json */,
 				306F0F4D21950B29000916FF /* LevelProgress.xcdatamodeld */,
 				300B7882218EAB390037205C /* Constants.swift */,
 				300B784E218D176A0037205C /* AppDelegate.swift */,
@@ -252,7 +252,7 @@
 			files = (
 				3032412421C57CA100A87762 /* Answers5.json in Resources */,
 				300B7851218D176A0037205C /* art.scnassets in Resources */,
-				300AC1D52191E3F6001577B5 /* AnswersSimple.json in Resources */,
+				300AC1D52191E3F6001577B5 /* Answers4.json in Resources */,
 				300B785B218D176A0037205C /* LaunchScreen.storyboard in Resources */,
 				300B7858218D176A0037205C /* Assets.xcassets in Resources */,
 				300B7856218D176A0037205C /* Main.storyboard in Resources */,

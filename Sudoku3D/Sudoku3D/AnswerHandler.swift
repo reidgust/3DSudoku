@@ -10,19 +10,16 @@ import Foundation
 import UIKit
 
 class AnswerHandler {
+    static let colorChoices = [Constants.Colors.fill1, Constants.Colors.fill2, Constants.Colors.fill3, Constants.Colors.fill4,Constants.Colors.fill5]
+    static let validAnswers3 : [[UInt32]] = [[26145,100422,135576],[26145,135576,100422],[26712,98721,136710],[26712,136710,98721]]
     static var validAnswers4 : [[UInt32]] = []
     static var validAnswers5 : [[UInt32]] = []
     static var proposedAnswer: [UIColor?] = []
     static var proposedDimension: Int = 0
-    static let colorChoices = [Constants.Colors.fill1, Constants.Colors.fill2, Constants.Colors.fill3, Constants.Colors.fill4,Constants.Colors.fill5]
-    var searchValue : [UInt32] = [0,0,0,0]
-
-    init(){
-        if AnswerHandler.validAnswers4.count == 0 {AnswerHandler.loadAnswers(dim:4)}
-    }
     
     public func pickRandomSoln(size dimension: Int) -> [UIColor] {
         var randVal : [UInt32] = []
+        // Number of bits to encode each color value
         var numBits = 0
         switch dimension {
         case 2:
@@ -30,17 +27,8 @@ class AnswerHandler {
             return [Constants.Colors.fill1,Constants.Colors.fill2,Constants.Colors.fill2,Constants.Colors.clear,
                 Constants.Colors.fill2,Constants.Colors.fill1,Constants.Colors.clear,Constants.Colors.clear]
         case 3:
-            // TODO: Placeholder text, not correct.
-            return [Constants.Colors.fill1,Constants.Colors.fill2,Constants.Colors.clear,
-                       Constants.Colors.fill3,Constants.Colors.fill1,Constants.Colors.clear,
-                       Constants.Colors.fill2,Constants.Colors.clear,Constants.Colors.clear,
-                       Constants.Colors.fill2,Constants.Colors.clear,Constants.Colors.clear,
-                       Constants.Colors.clear,Constants.Colors.clear,Constants.Colors.clear,
-                       Constants.Colors.clear,Constants.Colors.fill1,Constants.Colors.clear,
-                       Constants.Colors.clear,Constants.Colors.clear,Constants.Colors.clear,
-                       Constants.Colors.clear,Constants.Colors.clear,Constants.Colors.clear,
-                       Constants.Colors.clear,Constants.Colors.clear,Constants.Colors.fill2]
-            //numBits = 2
+            randVal = AnswerHandler.validAnswers3[Int(arc4random_uniform(UInt32(4)))];
+            numBits = 2
         case 4:
             if AnswerHandler.validAnswers4.count == 0 {AnswerHandler.loadAnswers(dim:4)}
             randVal = AnswerHandler.validAnswers4[Int(arc4random_uniform(UInt32(AnswerHandler.validAnswers4.count)))]
@@ -56,6 +44,7 @@ class AnswerHandler {
         
         var refCols : [UIColor] = []
         var solnCols : [UIColor] = []
+        // Randomize color choices otherwise first column will always be the same, as it is the reference column.
         var colChoices = Array(AnswerHandler.colorChoices[0..<dimension])
         for _ in 0..<dimension {
             let index = arc4random_uniform(UInt32(colChoices.count))
@@ -64,37 +53,23 @@ class AnswerHandler {
         var val : UInt32 = 0
         let numCols = dimension * dimension
         for i in 0..<Int(pow(Double(dimension),3.0)) {
-            let row = i / numCols
-            let col = i % numCols
-            if col == 0 { val = randVal[row]}
+            let col = i / numCols
+            let row = i % numCols
+            if row == 0 { val = randVal[col]}
             
             // This math will need to be changed per dimension
-            let index = Int(val >> ((numCols - col - 1) * numBits)) & Int(pow(Double(numBits),2.0) - 1)
+            let index = Int(val >> ((numCols - row - 1) * numBits)) & Int(pow(Double(numBits),2.0) - 1)
             solnCols.append(refCols[index])
         }
         return solnCols
     }
     
     private static func loadAnswers(dim: Int) {
-        var resourceName : String
-        switch dim {
-        case 3:
-            // TODO: Make 3X3 answer set.
-            resourceName = "AnswersSimple"
-        case 4:
-            resourceName = "AnswersSimple"
-        case 5:
-            resourceName = "Answers5"
-        default:
-            fatalError("No answer set for that dimension value")
-        }
+        let resourceName : String = "Answers\(dim)"
         if let path = Bundle.main.path(forResource: resourceName, ofType: "json") {
             do {
                 let data = try Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe)
                 switch dim {
-                case 3:
-                    //TODO: Placeholder Text. Make 3X3 answers.
-                    validAnswers4 = try JSONSerialization.jsonObject(with: data, options: .mutableLeaves) as! Array<Array<UInt32>>
                 case 4:
                     validAnswers4 = try JSONSerialization.jsonObject(with: data, options: .mutableLeaves) as! Array<Array<UInt32>>
                 case 5:
@@ -102,7 +77,6 @@ class AnswerHandler {
                 default:
                     fatalError("No answer set for that dimension value")
                 }
-                
             } catch {
                 fatalError("Can't load answer set.")
             }
@@ -164,36 +138,5 @@ class AnswerHandler {
             if !checkIndex(i) {return false}
         }
         return true
-    }
-    
-    private func searchValidAnswers(for searchVal: [UInt32]) -> Bool {
-        var low = 0
-        var high = AnswerHandler.validAnswers4.count - 1
-        var mid = Int(high / 2)
-        
-        while low <= high {
-            let midElement = AnswerHandler.validAnswers4[mid]
-            switch compareValues(midElement) {
-            case -1 :
-                high = mid - 1
-            case 0:
-                return true
-            case 1:
-                low = mid + 1
-            default:
-                return false
-            }
-            mid = (low + high) / 2
-        }
-        
-        return false
-    }
-    
-    private func compareValues(_ levelTerm : [UInt32]) ->Int8 {
-        for i in 0...3 {
-            if(levelTerm[i] > searchValue[i]) {return -1}
-            if(levelTerm[i] < searchValue[i]) {return 1}
-        }
-        return 0;
     }
 }
