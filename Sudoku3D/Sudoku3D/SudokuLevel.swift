@@ -11,19 +11,17 @@ import CoreData
 import UIKit
 
 class SudokuLevel {
-    //static let appDelegate = UIApplication.shared.delegate as! AppDelegate
-    
     static let answerHandler = AnswerHandler()
     var state : [UIColor] = []
     var hasPassed : Bool = false
+    var isLocked : Bool = false
     var levelNumber : Int
     var dimension : Int
     
     init(level: Int) {
         levelNumber = level
         dimension = level < 3 ? 3 : (level < 12 ? 4 : 5)
-        let percentMissing = 60
-        /*if let result = getSavedLevel()
+        if let result = getSavedLevel()
         {
             if let levelNumber = result.value(forKey: "levelNumber") as? Int
             {
@@ -33,20 +31,27 @@ class SudokuLevel {
             {
                 self.hasPassed = hp
             }
-            if let data = result.value(forKey: "state") as? Data
+            if let il = result.value(forKey: "isLocked") as? Bool
             {
-                self.state = SudokuLevel.binaryToColorArray(withData: data)
+                self.isLocked = il
+            }
+            if let data = result.value(forKey: "state") as? NSData
+            {
+                var arrayLength = dimension*dimension*dimension
+                arrayLength = arrayLength % 2 == 0 ? arrayLength/2 : (arrayLength/2 + 1)
+                self.state = SudokuLevel.dataToColorArray(withData: data, arrayLength: arrayLength)
             }
         }
-        else*/
-        //{
+        else
+        {
+            let percentMissing = 60
             state = SudokuLevel.answerHandler.pickRandomSoln(size: dimension)
             for i in 0..<dimension*dimension*dimension {
                 if arc4random_uniform(100) < percentMissing {
                     state[i] = Constants.Colors.clear
                 }
             }
-        //}
+        }
     }
     
     func getColour(_ i:Int) -> UIColor {
@@ -88,42 +93,37 @@ class SudokuLevel {
     }
     
     func persistData() {
+        var level : SudokuLevelMO
         if let result = getSavedLevel() {
-            result.setValue(levelNumber, forKey: "levelNumber")
-            result.setValue(hasPassed, forKey: "hasPassed")
-            let data = SudokuLevel.colorArrayToBinary(state)
-            result.setValue(SudokuLevel.binaryToColorArray(withData: data), forKey: "state")
+            level = result
+        } else {
+            level = NSEntityDescription.insertNewObject(forEntityName: "Level", into: AppDelegate.context) as! SudokuLevelMO
         }
-        else
+        level.setValue(levelNumber, forKey: "levelNumber")
+        level.setValue(hasPassed, forKey: "hasPassed")
+        level.setValue(isLocked, forKey: "isLocked")
+        let data = SudokuLevel.colorArrayToData(state)
+        level.setValue(data, forKey: "state")
+        do
         {
-            let newLevel = NSEntityDescription.insertNewObject(forEntityName: "Level", into: AppDelegate.context)
-            newLevel.setValue(hasPassed, forKey: "hasPassed")
-            newLevel.setValue(levelNumber, forKey: "levelNumber")
-            let binaryColorArray = SudokuLevel.colorArrayToBinary(state)
-            newLevel.setValue(NSData(data:binaryColorArray),forKey:"state")
-            do
-            {
-                try AppDelegate.context.save()
-                print("SAVED")
-            }
-            catch
-            {
-                //TODO: Error handling.
-            }
+            try AppDelegate.context.save()
+            print("SAVED")
+        }
+        catch
+        {
+            //TODO: Error handling.
         }
     }
 
-    private func getSavedLevel() -> NSManagedObject? {
+    private func getSavedLevel() -> SudokuLevelMO? {
         let request = NSFetchRequest<NSFetchRequestResult>(entityName: "Level")
         request.returnsObjectsAsFaults = false
         do
         {
-            let results = try AppDelegate.context.fetch(request)
+            request.predicate = NSPredicate(format: "levelNumber = \(levelNumber)")
+            let results = try AppDelegate.context.fetch(request) as! [SudokuLevelMO]
             if results.count < 1 { return nil }
-            for result in results as! [NSManagedObject] {
-                if result.value(forKey: "levelNumber") as? Int == levelNumber { return result }
-            }
-            return nil
+            return results[0]
         }
         catch
         {
@@ -131,89 +131,95 @@ class SudokuLevel {
         }
     }
     
-    private static func colorArrayToBinary(_ stateTemp:[UIColor]) -> Data {
-        var array : [Int] = []
-        var temp : Int?
+    private static func colorArrayToData(_ stateTemp:[UIColor]) -> NSData {
+        // Save space by first converting to numeric representation of colors
+        var array : [UInt8] = []
+        var temp : UInt8?
         for i in 0..<stateTemp.count {
-            if i % 2 == 0 { temp = SudokuLevel.getColorCode(fromColor: stateTemp[i]) << 4}
+            if i % 2 == 0 {
+                temp = SudokuLevel.getColorCode(fromColor: stateTemp[i]) << 4
+                // If there are an odd number of cubes.
+                if i+1 == stateTemp.count {
+                    array.append(temp!)
+                }
+            }
             else {
-                array.append(temp! | (SudokuLevel.getColorCode(fromColor: stateTemp[i]) & 0xff))
+                array.append(temp! | (SudokuLevel.getColorCode(fromColor: stateTemp[i]) & 0xf))
                 temp = nil
             }
         }
-        if let temp = temp {
-            array[stateTemp.count/2 + 1] = temp | 0xff
-        }
-        return NSKeyedArchiver.archivedData(withRootObject: array)
+        return NSData(bytes: array, length: array.count)
     }
     
-    private static func getColorCode(fromColor color: UIColor) -> Int {
-        switch color {
-        case Constants.Colors.fill1:
-            return 0
-        case Constants.Colors.fill2:
-            return 1
-        case Constants.Colors.fill3:
-            return 2
-        case Constants.Colors.fill4:
-            return 3
-        case Constants.Colors.fill5:
-            return 4
-        case Constants.Colors.clear:
-            return 5
-        case Constants.Colors.fill1Selected:
-            return 6
-        case Constants.Colors.fill2Selected:
-            return 7
-        case Constants.Colors.fill3Selected:
-            return 8
-        case Constants.Colors.fill4Selected:
-            return 9
-        case Constants.Colors.fill5Selected:
-            return 10
-        default:
-            return 15
-        }
-    }
-    
-    private static func binaryToColorArray(withData data: Data) -> [UIColor]{
+    private static func dataToColorArray(withData data: NSData, arrayLength : Int) -> [UIColor] {
         var stateTemp : [UIColor] = []
-        let array = NSKeyedUnarchiver.unarchiveObject(with: data)
-        for elem in (array as! [Int?]){
-            stateTemp.append(SudokuLevel.getColor(storedAsIndex: elem!>>4)!)
-            if let val = SudokuLevel.getColor(storedAsIndex: elem! & 0xff){
-                stateTemp.append(val)
+        var array : [UInt8] = Array(repeating: 0, count: arrayLength)
+        data.getBytes(&array, length:arrayLength)
+        for i in 0..<array.count{
+            stateTemp.append(SudokuLevel.getColor(storedAsIndex: (array[i] >> 4 ) & 0xf))
+            // If not the last elem of an odd dimension cube
+            if !((i + 1 == array.count) && (i == 4 || i == 62)) {
+                stateTemp.append(SudokuLevel.getColor(storedAsIndex: array[i] & 0xf))
             }
         }
         return stateTemp
     }
-    
-    private static func getColor(storedAsIndex index: Int) -> UIColor?{
+
+    private static func getColorCode(fromColor color: UIColor) -> UInt8 {
+        switch color {
+        case Constants.Colors.clear:
+            return 0
+        case Constants.Colors.fill1:
+            return 1
+        case Constants.Colors.fill1Selected:
+            return 2
+        case Constants.Colors.fill2:
+            return 3
+        case Constants.Colors.fill2Selected:
+            return 4
+        case Constants.Colors.fill3:
+            return 5
+        case Constants.Colors.fill3Selected:
+            return 6
+        case Constants.Colors.fill4:
+            return 7
+        case Constants.Colors.fill4Selected:
+            return 8
+        case Constants.Colors.fill5:
+            return 9
+        case Constants.Colors.fill5Selected:
+            return 10
+        default:
+            return 0
+        }
+    }
+
+    private static func getColor(storedAsIndex index: UInt8) -> UIColor {
         switch index {
         case 0:
-            return Constants.Colors.fill1
-        case 1:
-            return Constants.Colors.fill2
-        case 2:
-            return Constants.Colors.fill3
-        case 3:
-            return Constants.Colors.fill4
-        case 4:
-            return Constants.Colors.fill5
-        case 5:
             return Constants.Colors.clear
-        case 6:
+        case 1:
+            return Constants.Colors.fill1
+        case 2:
             return Constants.Colors.fill1Selected
-        case 7:
+        case 3:
+            return Constants.Colors.fill2
+        case 4:
             return Constants.Colors.fill2Selected
-        case 8:
+        case 5:
+            return Constants.Colors.fill3
+        case 6:
             return Constants.Colors.fill3Selected
-        case 9:
+        case 7:
+            return Constants.Colors.fill4
+        case 8:
             return Constants.Colors.fill4Selected
+        case 9:
+            return Constants.Colors.fill5
         case 10:
-            return Constants.Colors.fill5Selected
+             return Constants.Colors.fill5Selected
         default:
-            return nil
+            return Constants.Colors.clear
         }
     }
 }

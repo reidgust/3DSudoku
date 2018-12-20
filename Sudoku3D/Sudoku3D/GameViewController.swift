@@ -344,7 +344,7 @@ class GameViewController: UIViewController {
             return
         }
         let currentSize = self.level?.getSize()
-        //self.level?.persistData()
+        self.level?.persistData()
         self.level = SudokuLevel(level: level)
         updateNumberOfCubeObjects(currentSize: currentSize!, newSize: (self.level?.getSize())!)
         changeAllCubeColors()
