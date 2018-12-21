@@ -26,7 +26,7 @@ class GameViewController: UIViewController {
     static let activeNodeColors = [Constants.Colors.clear,Constants.Colors.fill1Selected,Constants.Colors.fill2Selected,Constants.Colors.fill3Selected,Constants.Colors.fill4Selected,Constants.Colors.fill5Selected]
     
     override func viewDidLoad() {
-        loadCurrentLevel()
+        level = SudokuLevel(level: UserDefaults.standard.integer(forKey: "currentLevel"))
         cube = sceneObjects.rootNode.childNode(withName: "Cube", recursively: true)
         frame = sceneObjects.rootNode.childNode(withName: "Frame", recursively: true)
         super.viewDidLoad()
@@ -37,52 +37,13 @@ class GameViewController: UIViewController {
         addGestures()
     }
     
+    public func getCurrentLevel() -> SudokuLevel {
+        return level!
+    }
+
     override func viewWillDisappear(_ animated: Bool) {
         level?.persistData()
-        persistData()
-    }
-    
-    private func persistData(hasPaid : Bool? = nil) {
-        if let result = loadCurrentLevel() {
-            result.setValue(level?.getLevelNumber(), forKey: "currentLevel")
-        }
-        else
-        {
-            let newGame = NSEntityDescription.insertNewObject(forEntityName: "Game", into: AppDelegate.context)
-            if let hasPaid = hasPaid {
-                newGame.setValue(hasPaid, forKey: "hasPaid")
-            }
-            newGame.setValue(level!.getLevelNumber(), forKey: "currentLevel")
-            do
-            {
-                try AppDelegate.context.save()
-                print("SAVED")
-            }
-            catch
-            {
-                //TODO: Error handling.
-            }
-        }
-    }
-    
-    private func loadCurrentLevel() -> NSManagedObject? {
-        let request = NSFetchRequest<NSFetchRequestResult>(entityName: "Game")
-        request.returnsObjectsAsFaults = false
-        do
-        {
-            let result = try AppDelegate.context.fetch(request)
-            if result.count < 1 {
-                level = SudokuLevel(level: 3)
-                return nil
-            }
-            level = SudokuLevel(level: (result[0] as! NSManagedObject).value(forKey: "currentLevel") as! Int)
-            return result[0] as? NSManagedObject
-        }
-        catch
-        {
-            fatalError("Can't Access CoreData: Game Progress")
-        }
-        return nil
+        UserDefaults.standard.set(level?.getLevelNumber(), forKey: "currentLevel")
     }
     
     func initView() {
@@ -118,9 +79,9 @@ class GameViewController: UIViewController {
         for i in 1...12 {
             let lvlNode = SCNNode(geometry : (SCNSphere(radius: 2)))
             switch i {
-            case 1...2:
+            case 1...3:
                 lvlNode.geometry!.firstMaterial?.diffuse.contents = Constants.Colors.fill1
-            case 3...11:
+            case 4...11:
                 lvlNode.geometry!.firstMaterial?.diffuse.contents = Constants.Colors.fill2
             case 12:
                 lvlNode.geometry!.firstMaterial?.diffuse.contents = Constants.Colors.fill4
@@ -324,8 +285,11 @@ class GameViewController: UIViewController {
             let color = GameViewController.activeNodeColors[(i + 1) % (topIndex + 1)]
             node.geometry?.firstMaterial?.diffuse.contents = color
             let nodeIndex = getCubeNumber(node)
+            // Check to see if that change wins the level
             if (self.level?.setColor(color, atIndex: nodeIndex!))! {
                 gameScene.rootNode.childNode(withName: "Frame1", recursively: true)!.geometry?.firstMaterial?.diffuse.contents = Constants.Colors.frameWon
+                //Update highest level if new level unlocked
+                //UserDefaults.standard.set(highestLevel, forKey: "highestLevel")
             }
         }
     }

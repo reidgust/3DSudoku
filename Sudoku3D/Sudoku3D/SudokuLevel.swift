@@ -17,11 +17,44 @@ class SudokuLevel {
     var isLocked : Bool = false
     var levelNumber : Int
     var dimension : Int
-    
+    let template : [[Int]] =
+        /*1*/[[0,1,0,1,1,1,0,1,0,
+               1,1,1,1,1,1,1,1,1,
+               0,1,0,1,1,1,0,1,0],
+         /*2*/[1,1,1,1,0,1,1,1,1,
+               1,1,1,1,0,1,1,1,1,
+               1,1,1,1,0,1,1,1,1],
+         /*3*/[0,1,0,0,0,1,1,0,1,
+               1,0,1,1,0,0,0,1,0,
+               0,1,0,1,0,1,0,0,1],
+         /*4*/[0,1,1,0,1,0,0,1,1,0,0,1,0,1,1,0,
+               1,0,0,1,1,1,1,1,1,1,1,1,1,0,0,1,
+               1,0,0,1,1,1,1,1,1,1,1,1,1,0,0,1,
+               0,1,1,0,1,0,0,1,1,0,0,1,0,1,1,0],
+         /*5*/[1,0,0,1,0,1,1,0,0,1,1,0,1,0,0,1,
+               0,1,1,0,1,1,1,1,1,1,1,1,0,1,1,0,
+               0,1,1,0,1,1,1,1,1,1,1,1,0,1,1,0,
+               1,0,0,1,0,1,1,0,0,1,1,0,1,0,0,1],
+         /*6*/[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+               1,1,1,1,1,0,0,1,1,0,0,1,1,1,1,1,
+               1,1,1,1,1,0,0,1,1,0,0,1,1,1,1,1,
+               1,1,1,1,1,0,0,1,1,0,0,1,1,1,1,1],
+         /*7*/[1,1,1,0,1,1,0,1,1,0,1,1,0,1,1,0,
+               1,0,0,1,0,1,0,1,0,0,0,1,0,1,1,0,
+               1,0,0,1,0,0,1,1,0,0,0,1,0,1,1,0,
+               0,1,1,1,1,0,1,1,1,1,0,1,0,1,1,0,]]
     init(level: Int) {
         levelNumber = level
-        dimension = level < 3 ? 3 : (level < 12 ? 4 : 5)
-        if let result = getSavedLevel()
+        dimension = level < 4 ? 3 : (level < 12 ? 4 : 5)
+        state = SudokuLevel.answerHandler.pickRandomSoln(size: dimension)
+        if level < 8 {
+            for i in 0..<dimension*dimension*dimension {
+                if template[level-1][i] == 0 {
+                    state[i] = Constants.Colors.clear
+                }
+            }
+        }
+        /*if let result = getSavedLevel()
         {
             if let levelNumber = result.value(forKey: "levelNumber") as? Int
             {
@@ -41,19 +74,19 @@ class SudokuLevel {
                 arrayLength = arrayLength % 2 == 0 ? arrayLength/2 : (arrayLength/2 + 1)
                 self.state = SudokuLevel.dataToColorArray(withData: data, arrayLength: arrayLength)
             }
-        }
+        }*/
         else
         {
-            let percentMissing = 60
+            let percentMissing = 50 + (8-level)*6
             state = SudokuLevel.answerHandler.pickRandomSoln(size: dimension)
             for i in 0..<dimension*dimension*dimension {
-                if arc4random_uniform(100) < percentMissing {
+                if arc4random_uniform(100) > percentMissing {
                     state[i] = Constants.Colors.clear
                 }
             }
         }
     }
-    
+
     func getColour(_ i:Int) -> UIColor {
         return state[i]
     }
