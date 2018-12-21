@@ -17,18 +17,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        self.window = UIWindow(frame: UIScreen.main.bounds)
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        theViewController = (storyboard.instantiateViewController(withIdentifier: "Game") as! GameViewController)
-        self.window?.rootViewController = theViewController!
-        self.window?.makeKeyAndVisible()
-
         // Set defaults if first time opening app.
         if UserDefaults.standard.integer(forKey: "currentLevel") == 0 {
             UserDefaults.standard.set(1, forKey: "currentLevel")
             UserDefaults.standard.set(false,forKey: "hasPaid")
             UserDefaults.standard.set(1,forKey:"highestLevel")
         }
+        self.window = UIWindow(frame: UIScreen.main.bounds)
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        theViewController = (storyboard.instantiateViewController(withIdentifier: "Game") as! GameViewController)
+        self.window?.rootViewController = theViewController!
+        self.window?.makeKeyAndVisible()
         return true
     }
 

@@ -10,11 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Sudoku3D/SudokuLevel.swift"
-            timestampString = "567054961.785991"
+            timestampString = "567094040.783715"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "135"
-            endingLineNumber = "135"
+            startingLineNumber = "106"
+            endingLineNumber = "106"
             landmarkName = "persistData()"
             landmarkType = "7">
          </BreakpointContent>
@@ -26,11 +26,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Sudoku3D/SudokuLevel.swift"
-            timestampString = "567054961.7866271"
+            timestampString = "567094040.783838"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "130"
-            endingLineNumber = "130"
+            startingLineNumber = "101"
+            endingLineNumber = "101"
             landmarkName = "persistData()"
             landmarkType = "7">
          </BreakpointContent>
@@ -42,12 +42,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Sudoku3D/SudokuLevel.swift"
-            timestampString = "567054961.7874531"
+            timestampString = "567094040.784238"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "75"
-            endingLineNumber = "75"
-            landmarkName = "init(level:)"
+            startingLineNumber = "43"
+            endingLineNumber = "43"
+            landmarkName = "init(level:random:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -58,27 +58,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Sudoku3D/SudokuLevel.swift"
-            timestampString = "567054961.787903"
+            timestampString = "567094040.784331"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "191"
-            endingLineNumber = "191"
-            landmarkName = "dataToColorArray(withData:arrayLength:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Sudoku3D/SudokuLevel.swift"
-            timestampString = "567054961.788269"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "184"
-            endingLineNumber = "184"
+            startingLineNumber = "154"
+            endingLineNumber = "154"
             landmarkName = "colorArrayToData(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -90,11 +74,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Sudoku3D/SudokuLevel.swift"
-            timestampString = "567054961.788623"
+            timestampString = "567094040.784409"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "188"
-            endingLineNumber = "188"
+            startingLineNumber = "157"
+            endingLineNumber = "157"
             landmarkName = "dataToColorArray(withData:arrayLength:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -106,7 +90,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Sudoku3D/GameViewController.swift"
-            timestampString = "567054961.788978"
+            timestampString = "567094040.7844909"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "40"
@@ -122,7 +106,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Sudoku3D/GameViewController.swift"
-            timestampString = "567054961.789206"
+            timestampString = "567094040.78475"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "41"

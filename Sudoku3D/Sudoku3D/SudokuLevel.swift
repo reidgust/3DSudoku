@@ -17,44 +17,11 @@ class SudokuLevel {
     var isLocked : Bool = false
     var levelNumber : Int
     var dimension : Int
-    let template : [[Int]] =
-        /*1*/[[0,1,0,1,1,1,0,1,0,
-               1,1,1,1,1,1,1,1,1,
-               0,1,0,1,1,1,0,1,0],
-         /*2*/[1,1,1,1,0,1,1,1,1,
-               1,1,1,1,0,1,1,1,1,
-               1,1,1,1,0,1,1,1,1],
-         /*3*/[0,1,0,0,0,1,1,0,1,
-               1,0,1,1,0,0,0,1,0,
-               0,1,0,1,0,1,0,0,1],
-         /*4*/[0,1,1,0,1,0,0,1,1,0,0,1,0,1,1,0,
-               1,0,0,1,1,1,1,1,1,1,1,1,1,0,0,1,
-               1,0,0,1,1,1,1,1,1,1,1,1,1,0,0,1,
-               0,1,1,0,1,0,0,1,1,0,0,1,0,1,1,0],
-         /*5*/[1,0,0,1,0,1,1,0,0,1,1,0,1,0,0,1,
-               0,1,1,0,1,1,1,1,1,1,1,1,0,1,1,0,
-               0,1,1,0,1,1,1,1,1,1,1,1,0,1,1,0,
-               1,0,0,1,0,1,1,0,0,1,1,0,1,0,0,1],
-         /*6*/[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-               1,1,1,1,1,0,0,1,1,0,0,1,1,1,1,1,
-               1,1,1,1,1,0,0,1,1,0,0,1,1,1,1,1,
-               1,1,1,1,1,0,0,1,1,0,0,1,1,1,1,1],
-         /*7*/[1,1,1,0,1,1,0,1,1,0,1,1,0,1,1,0,
-               1,0,0,1,0,1,0,1,0,0,0,1,0,1,1,0,
-               1,0,0,1,0,0,1,1,0,0,0,1,0,1,1,0,
-               0,1,1,1,1,0,1,1,1,1,0,1,0,1,1,0,]]
-    init(level: Int) {
+
+    init(level: Int, random: Bool = false) {
         levelNumber = level
         dimension = level < 4 ? 3 : (level < 12 ? 4 : 5)
-        state = SudokuLevel.answerHandler.pickRandomSoln(size: dimension)
-        if level < 8 {
-            for i in 0..<dimension*dimension*dimension {
-                if template[level-1][i] == 0 {
-                    state[i] = Constants.Colors.clear
-                }
-            }
-        }
-        /*if let result = getSavedLevel()
+        if let result = getSavedLevel()
         {
             if let levelNumber = result.value(forKey: "levelNumber") as? Int
             {
@@ -70,20 +37,24 @@ class SudokuLevel {
             }
             if let data = result.value(forKey: "state") as? NSData
             {
-                var arrayLength = dimension*dimension*dimension
-                arrayLength = arrayLength % 2 == 0 ? arrayLength/2 : (arrayLength/2 + 1)
-                self.state = SudokuLevel.dataToColorArray(withData: data, arrayLength: arrayLength)
-            }
-        }*/
-        else
-        {
-            let percentMissing = 50 + (8-level)*6
-            state = SudokuLevel.answerHandler.pickRandomSoln(size: dimension)
-            for i in 0..<dimension*dimension*dimension {
-                if arc4random_uniform(100) > percentMissing {
-                    state[i] = Constants.Colors.clear
+                if !random {
+                    var arrayLength = dimension*dimension*dimension
+                    arrayLength = arrayLength % 2 == 0 ? arrayLength/2 : (arrayLength/2 + 1)
+                    self.state = SudokuLevel.dataToColorArray(withData: data, arrayLength: arrayLength)
+                } else {
+                    self.state = SudokuLevel.answerHandler.pickRandomSoln(size: dimension)
+                    let percentMissing = 40 + arc4random_uniform(40)
+                    for i in 0..<dimension*dimension*dimension {
+                        if arc4random_uniform(100) > percentMissing {
+                            self.state[i] = Constants.Colors.clear
+                        }
+                    }
                 }
             }
+        }
+        else
+        {
+            self.state = SudokuLevel.dataArrayToColorArray(withArray: Constants.Levels[levelNumber]!)
         }
     }
 
@@ -140,7 +111,6 @@ class SudokuLevel {
         do
         {
             try AppDelegate.context.save()
-            print("SAVED")
         }
         catch
         {
@@ -185,13 +155,17 @@ class SudokuLevel {
     }
     
     private static func dataToColorArray(withData data: NSData, arrayLength : Int) -> [UIColor] {
-        var stateTemp : [UIColor] = []
         var array : [UInt8] = Array(repeating: 0, count: arrayLength)
         data.getBytes(&array, length:arrayLength)
+        return dataArrayToColorArray(withArray: array)
+    }
+    
+    private static func dataArrayToColorArray(withArray array: [UInt8]) -> [UIColor] {
+        var stateTemp : [UIColor] = []
         for i in 0..<array.count{
             stateTemp.append(SudokuLevel.getColor(storedAsIndex: (array[i] >> 4 ) & 0xf))
             // If not the last elem of an odd dimension cube
-            if !((i + 1 == array.count) && (i == 4 || i == 62)) {
+            if !((i + 1 == array.count) && (i == 13 || i == 62)) {
                 stateTemp.append(SudokuLevel.getColor(storedAsIndex: array[i] & 0xf))
             }
         }

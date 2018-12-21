@@ -67,6 +67,7 @@ class GameViewController: UIViewController {
     
     func createTitleBar() {
         let title = SCNScene(named: "art.scnassets/Title.dae")!
+        //let lock = CALayer(layer: "art.scnassets/lock-icon.png")
         let titleBar = SCNNode(geometry: SCNBox(width: 20, height: 10, length: 4, chamferRadius: 0.2))
         titleBar.geometry?.firstMaterial?.diffuse.contents = Constants.Colors.clear
         titleBar.name = "TitleBar"

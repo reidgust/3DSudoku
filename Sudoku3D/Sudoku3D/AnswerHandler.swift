@@ -32,9 +32,8 @@ class AnswerHandler {
         
         switch dimension {
         case 2:
-            // Simple 2x2 Only used for tutorial level.
-            return [Constants.Colors.fill1,Constants.Colors.fill2,Constants.Colors.fill2,Constants.Colors.clear,
-                Constants.Colors.fill2,Constants.Colors.fill1,Constants.Colors.clear,Constants.Colors.clear]
+            // Simple 2x2 Only used for potential tutorial level.
+            return [Constants.Colors.fill1,Constants.Colors.fill2,Constants.Colors.fill2,Constants.Colors.fill1,Constants.Colors.fill2,Constants.Colors.fill1,Constants.Colors.fill1,Constants.Colors.fill2]
         case 3:
             randVal = AnswerHandler.validAnswers3[Int(arc4random_uniform(UInt32(4)))];
             numBits = 2
