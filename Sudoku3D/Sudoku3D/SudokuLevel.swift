@@ -10,11 +10,26 @@ import Foundation
 import CoreData
 import UIKit
 
+enum LevelStatus {
+    case normal
+    case wonAgain
+    case wonFirstTime
+    case undidWin
+}
+
 class SudokuLevel {
     static let answerHandler = AnswerHandler()
     var state : [UIColor] = []
-    var hasPassed : Bool = false
-    var isLocked : Bool = false
+    var _hasPassed : Bool = false
+    var hasPassed : Bool {
+        set {_hasPassed = newValue}
+        get {return _hasPassed}
+    }
+    var _isComplete : Bool = false
+    var isComplete : Bool {
+        set {_isComplete = newValue}
+        get {return _isComplete}
+    }
     var levelNumber : Int
     var dimension : Int
 
@@ -31,9 +46,9 @@ class SudokuLevel {
             {
                 self.hasPassed = hp
             }
-            if let il = result.value(forKey: "isLocked") as? Bool
+            if let ic = result.value(forKey: "isComplete") as? Bool
             {
-                self.isLocked = il
+                self.isComplete = ic
             }
             if let data = result.value(forKey: "state") as? NSData
             {
@@ -58,6 +73,10 @@ class SudokuLevel {
         }
     }
 
+    func getLevelNumber() -> Int {
+        return levelNumber
+    }
+    
     func getColour(_ i:Int) -> UIColor {
         return state[i]
     }
@@ -74,26 +93,22 @@ class SudokuLevel {
         return dimension * dimension * dimension
     }
 
-    func setColor(_ color : UIColor, atIndex index : Int) -> Bool {
+    func setColor(_ color : UIColor, atIndex index : Int) -> LevelStatus {
         state[index] = color
-        // Don't just return hasPassed because allow the ability to re-win level.
         if AnswerHandler.checkAnswer(state,mostRecentIndexChanged: index) {
-            hasPassed = true;
-            return true;
+            isComplete = true
+            if hasPassed {
+                return LevelStatus.wonAgain
+            }
+            hasPassed = true
+            return LevelStatus.wonFirstTime
+        } else {
+            if isComplete {
+                isComplete = false
+                return LevelStatus.undidWin
+            }
+            return LevelStatus.normal
         }
-        return false;
-    }
-    
-    func getHasPassed() -> Bool {
-        return hasPassed
-    }
-    
-    func setHasPassed(_ hp : Bool) {
-        hasPassed = hp
-    }
-    
-    func getLevelNumber() -> Int {
-        return levelNumber
     }
     
     func persistData() {
@@ -105,7 +120,7 @@ class SudokuLevel {
         }
         level.setValue(levelNumber, forKey: "levelNumber")
         level.setValue(hasPassed, forKey: "hasPassed")
-        level.setValue(isLocked, forKey: "isLocked")
+        level.setValue(isComplete, forKey: "isComplete")
         let data = SudokuLevel.colorArrayToData(state)
         level.setValue(data, forKey: "state")
         do

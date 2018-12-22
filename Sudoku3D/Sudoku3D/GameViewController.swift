@@ -67,7 +67,6 @@ class GameViewController: UIViewController {
     
     func createTitleBar() {
         let title = SCNScene(named: "art.scnassets/Title.dae")!
-        //let lock = CALayer(layer: "art.scnassets/lock-icon.png")
         let titleBar = SCNNode(geometry: SCNBox(width: 20, height: 10, length: 4, chamferRadius: 0.2))
         titleBar.geometry?.firstMaterial?.diffuse.contents = Constants.Colors.clear
         titleBar.name = "TitleBar"
@@ -77,17 +76,33 @@ class GameViewController: UIViewController {
         titleBar.light!.temperature = 500
         titleBar.light!.intensity = 500
         gameScene.rootNode.addChildNode(titleBar)
+
+        //let lock = CALayer(layer: "art.scnassets/lock-icon.png")
+        let layer = CALayer()
+        layer.frame = CGRect(x:0, y:0, width:1, height:1)
+        layer.backgroundColor = Constants.Colors.fill4.cgColor
+        
+        var textLayer = CATextLayer()
+        textLayer.frame = layer.bounds
+        textLayer.fontSize = layer.bounds.size.height
+        textLayer.string = "Test"
+        textLayer.alignmentMode = CATextLayerAlignmentMode.left
+        textLayer.foregroundColor = Constants.Colors.title.cgColor
+        textLayer.display()
+        layer.addSublayer(textLayer)
+        //var image = UIImage(named:"art.scnassets/lock-icon.png")!
+        
         for i in 1...12 {
             let lvlNode = SCNNode(geometry : (SCNSphere(radius: 2)))
             switch i {
             case 1...3:
-                lvlNode.geometry!.firstMaterial?.diffuse.contents = Constants.Colors.fill1
+                lvlNode.geometry!.firstMaterial?.diffuse.contents = Constants.Colors.fill3
             case 4...11:
-                lvlNode.geometry!.firstMaterial?.diffuse.contents = Constants.Colors.fill2
+                lvlNode.geometry!.firstMaterial?.diffuse.contents = layer
             case 12:
-                lvlNode.geometry!.firstMaterial?.diffuse.contents = Constants.Colors.fill4
+                lvlNode.geometry!.firstMaterial?.diffuse.contents = Constants.Colors.fill5
             default:
-                lvlNode.geometry!.firstMaterial?.diffuse.contents = Constants.Colors.fill4
+                lvlNode.geometry!.firstMaterial?.diffuse.contents = Constants.Colors.fill5
             }
             lvlNode.name = "lvl\(i)"
             lvlNode.position = SCNVector3(x: Float(i*4 - 24) - 2, y: 10, z: 0)
@@ -173,7 +188,7 @@ class GameViewController: UIViewController {
             frameNode.scale = frameScale
             cubeNode.geometry?.firstMaterial = SCNMaterial()
             cubeNode.geometry?.firstMaterial?.diffuse.contents = level!.getColour(i)
-            frameNode.geometry?.firstMaterial?.diffuse.contents = level!.getHasPassed() ? Constants.Colors.frameWon : Constants.Colors.frame
+            frameNode.geometry?.firstMaterial?.diffuse.contents = level!.isComplete ? Constants.Colors.frameWon : Constants.Colors.frame
             
             cubeNode.position = getCubePosition(index:i)
             frameNode.position = cubeNode.position
@@ -246,10 +261,10 @@ class GameViewController: UIViewController {
     }
     
     func changeAllCubeColors() {
-        let names: [String] = ["Master","Inner"]
+        let names: [String] = ["Master","Inner","Solo"]
         for i in 0..<names.count {
             var changedFrame = false
-            for node in gameScene.rootNode.childNode(withName: names[i], recursively: true)!.childNodes{
+            for node in gameScene.rootNode.childNode(withName: names[i], recursively: true)?.childNodes ?? [] {
                 if (node.name?.contains("Cube"))! {
                     if let nodeIndex = getCubeNumber(node){
                         node.geometry?.firstMaterial?.diffuse.contents = level!.getColour(nodeIndex)
@@ -257,7 +272,7 @@ class GameViewController: UIViewController {
                 }
                 if (!changedFrame && (node.name?.contains("Frame"))!) {
                     changedFrame = true
-                    if level!.getHasPassed() {
+                    if level!.isComplete {
                         node.geometry?.firstMaterial?.diffuse.contents = Constants.Colors.frameWon
                     } else {
                         node.geometry?.firstMaterial?.diffuse.contents = Constants.Colors.frame
@@ -277,6 +292,15 @@ class GameViewController: UIViewController {
         }
     }
     
+    func levelPassed() {
+        //Update highest level if new level unlocked
+        let levelNumber = level!.getLevelNumber()
+        if (levelNumber < 6 || (UserDefaults.standard.value(forKey: "hasPaid")) as! Bool) {
+            UserDefaults.standard.set(level!.getLevelNumber() + 1, forKey: "highestLevel")
+            //TODO: Update level buttons
+        }
+    }
+    
     func nextColor(forNode node: SCNNode) {
         if !(node.name?.contains("Cube"))! { return }
         let currentColor = node.geometry?.firstMaterial?.diffuse.contents as! UIColor
@@ -287,10 +311,16 @@ class GameViewController: UIViewController {
             node.geometry?.firstMaterial?.diffuse.contents = color
             let nodeIndex = getCubeNumber(node)
             // Check to see if that change wins the level
-            if (self.level?.setColor(color, atIndex: nodeIndex!))! {
+            switch (self.level?.setColor(color, atIndex: nodeIndex!))! {
+            case LevelStatus.wonFirstTime:
+                levelPassed()
+                fallthrough
+            case LevelStatus.wonAgain:
                 gameScene.rootNode.childNode(withName: "Frame1", recursively: true)!.geometry?.firstMaterial?.diffuse.contents = Constants.Colors.frameWon
-                //Update highest level if new level unlocked
-                //UserDefaults.standard.set(highestLevel, forKey: "highestLevel")
+            case LevelStatus.undidWin:
+                gameScene.rootNode.childNode(withName: "Frame1", recursively: true)!.geometry?.firstMaterial?.diffuse.contents = Constants.Colors.frame
+            case LevelStatus.normal:
+                break
             }
         }
     }
@@ -303,16 +333,56 @@ class GameViewController: UIViewController {
         }
     }
     
+    func presentActionSheet(withMessage message: String, currentLevel : Bool = false, random : Bool = false) {
+        let alert = UIAlertController(title: nil, message: message, preferredStyle: .actionSheet)
+        alert.addAction(UIAlertAction(title: "Continue Current Level", style: .cancel, handler: nil))
+        if currentLevel {
+            alert.addAction(UIAlertAction(title: "Reset Level", style: .default, handler: { action in
+                for i in 0..<self.level!.getSize() {
+                    switch self.level?.getColour(i){
+                    case Constants.Colors.fill1Selected, Constants.Colors.fill2Selected, Constants.Colors.fill3Selected, Constants.Colors.fill4Selected, Constants.Colors.fill5Selected:
+                        self.level?.setColor(i, colour: Constants.Colors.clear)
+                        self.level?.isComplete = false
+                        self.changeAllCubeColors()
+                    default:
+                        continue
+                    }
+                }
+            }))
+            if random {
+                alert.addAction(UIAlertAction(title: "New Random Level", style: .default, handler: { action in
+                    self.level = SudokuLevel(level: (self.level?.getLevelNumber())!, random : true)
+                    self.changeAllCubeColors()
+                }))
+            }
+        }
+        if !UserDefaults.standard.bool(forKey: "hasPaid") {
+            alert.addAction(UIAlertAction(title:"Upgrade For Unlimited Levels", style: .default, handler: { action in
+                // TODO: Add in-app purchases.
+                UserDefaults.setValue(true, forKey: "hasPaid")
+            }))
+        }
+        
+        self.present(alert, animated: true)
+    }
+    
     func switchTo(level: Int) {
         if level == self.level?.levelNumber {
-            // TODO: UIAlertView: Reset Level. Random Level. Continue. Pay
+            presentActionSheet(withMessage: "You're currently playing level \(level)", currentLevel: true, random: (level == 3 || level == 11 || level == 12))
             return
         }
-        let currentSize = self.level?.getSize()
-        self.level?.persistData()
-        self.level = SudokuLevel(level: level)
-        updateNumberOfCubeObjects(currentSize: currentSize!, newSize: (self.level?.getSize())!)
-        changeAllCubeColors()
+        if level > 6 && !UserDefaults.standard.bool(forKey: "hasPaid") {
+            presentActionSheet(withMessage: "Level \(level) is currently blocked. Only levels 1-6 are available in free play. Upgrade for unlimited 4X4 and 5X5 levels.")
+        }
+        else if level <= UserDefaults.standard.integer(forKey: "highestLevel") {
+            let currentSize = self.level?.getSize()
+            self.level?.persistData()
+            self.level = SudokuLevel(level: level)
+            updateNumberOfCubeObjects(currentSize: currentSize!, newSize: (self.level?.getSize())!)
+            changeAllCubeColors()
+        } else {
+            presentActionSheet(withMessage: "Level \(level) is currently blocked and will be unblocked when you beat level \(level - 1)")
+        }
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
