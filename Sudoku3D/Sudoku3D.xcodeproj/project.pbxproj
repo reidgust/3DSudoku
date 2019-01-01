@@ -17,6 +17,8 @@
 		300B7866218D176B0037205C /* Sudoku3DTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 300B7865218D176B0037205C /* Sudoku3DTests.swift */; };
 		300B7871218D176B0037205C /* Sudoku3DUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 300B7870218D176B0037205C /* Sudoku3DUITests.swift */; };
 		300B7883218EAB390037205C /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 300B7882218EAB390037205C /* Constants.swift */; };
+		3030C27721D8200D007CB2E6 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3030C27621D8200D007CB2E6 /* StoreKit.framework */; };
+		3030C27B21D82738007CB2E6 /* UpgradeHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3030C27A21D82738007CB2E6 /* UpgradeHandler.swift */; };
 		3032412421C57CA100A87762 /* Answers5.json in Resources */ = {isa = PBXBuildFile; fileRef = 3032412321C57CA100A87762 /* Answers5.json */; };
 		3032412621C95B5400A87762 /* SudokuLevel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3032412521C95B5400A87762 /* SudokuLevel.swift */; };
 		306F0F4F21950B29000916FF /* LevelProgress.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 306F0F4D21950B29000916FF /* LevelProgress.xcdatamodeld */; };
@@ -57,6 +59,8 @@
 		300B7870218D176B0037205C /* Sudoku3DUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sudoku3DUITests.swift; sourceTree = "<group>"; };
 		300B7872218D176B0037205C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		300B7882218EAB390037205C /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		3030C27621D8200D007CB2E6 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
+		3030C27A21D82738007CB2E6 /* UpgradeHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpgradeHandler.swift; sourceTree = "<group>"; };
 		3032412321C57CA100A87762 /* Answers5.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Answers5.json; sourceTree = "<group>"; };
 		3032412521C95B5400A87762 /* SudokuLevel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SudokuLevel.swift; sourceTree = "<group>"; };
 		306F0F4E21950B29000916FF /* LevelProgress.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = LevelProgress.xcdatamodel; sourceTree = "<group>"; };
@@ -68,6 +72,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3030C27721D8200D007CB2E6 /* StoreKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -95,6 +100,7 @@
 				300B7864218D176B0037205C /* Sudoku3DTests */,
 				300B786F218D176B0037205C /* Sudoku3DUITests */,
 				300B784C218D176A0037205C /* Products */,
+				3030C27521D8200D007CB2E6 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -121,6 +127,7 @@
 				300B7852218D176A0037205C /* GameViewController.swift */,
 				30FE360B21918A9A00114A94 /* AnswerHandler.swift */,
 				3032412521C95B5400A87762 /* SudokuLevel.swift */,
+				3030C27A21D82738007CB2E6 /* UpgradeHandler.swift */,
 				300B785C218D176A0037205C /* Info.plist */,
 				300B7857218D176A0037205C /* Assets.xcassets */,
 				300B7850218D176A0037205C /* art.scnassets */,
@@ -144,6 +151,14 @@
 				300B7872218D176B0037205C /* Info.plist */,
 			);
 			path = Sudoku3DUITests;
+			sourceTree = "<group>";
+		};
+		3030C27521D8200D007CB2E6 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				3030C27621D8200D007CB2E6 /* StoreKit.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -214,6 +229,14 @@
 				TargetAttributes = {
 					300B784A218D176A0037205C = {
 						CreatedOnToolsVersion = 10.1;
+						SystemCapabilities = {
+							com.apple.GameCenter.iOS = {
+								enabled = 0;
+							};
+							com.apple.InAppPurchase = {
+								enabled = 1;
+							};
+						};
 					};
 					300B7860218D176B0037205C = {
 						CreatedOnToolsVersion = 10.1;
@@ -281,6 +304,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				30FE360C21918A9A00114A94 /* AnswerHandler.swift in Sources */,
+				3030C27B21D82738007CB2E6 /* UpgradeHandler.swift in Sources */,
 				3032412621C95B5400A87762 /* SudokuLevel.swift in Sources */,
 				300B7853218D176A0037205C /* GameViewController.swift in Sources */,
 				300B784F218D176A0037205C /* AppDelegate.swift in Sources */,
@@ -433,7 +457,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;

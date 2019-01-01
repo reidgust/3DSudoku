@@ -16,11 +16,14 @@ class GameViewController: UIViewController {
     var gameView : SCNView!
     var gameScene : SCNScene!
     var cameraNode : SCNNode!
+    var tutorial = false
     var level : SudokuLevel?
+    var switchingToLevel : Int?
     var targetCreationTime : TimeInterval = 0
     var xAngle: Float = 0
     var yAngle: Float = 0
     let sceneObjects = SCNScene(named: "art.scnassets/Set.dae")!
+    var store : UpgradeHandler?
     var frame : SCNNode?
     var cube : SCNNode?
     static let activeNodeColors = [Constants.Colors.clear,Constants.Colors.fill1Selected,Constants.Colors.fill2Selected,Constants.Colors.fill3Selected,Constants.Colors.fill4Selected,Constants.Colors.fill5Selected]
@@ -35,6 +38,13 @@ class GameViewController: UIViewController {
         initCamera()
         createGameObjects()
         addGestures()
+    }
+
+    public func nothing(){}
+
+    public func setFirstTime() {
+        presentTipAlert(withMessage: Constants.Scripts.intro, withTitle: "Welcome!", dismissButton: "Let me play!")
+        tutorial = true
     }
     
     public func getCurrentLevel() -> SudokuLevel {
@@ -295,9 +305,26 @@ class GameViewController: UIViewController {
     func levelPassed() {
         //Update highest level if new level unlocked
         let levelNumber = level!.getLevelNumber()
-        if (levelNumber < 6 || (UserDefaults.standard.value(forKey: "hasPaid")) as! Bool) {
+        if levelNumber == 1 {
+            presentTipAlert(withMessage: Constants.Scripts.passedFirstLevel, withTitle: "One down!", dismissButton: "I'm getting it!")
+        }
+        if levelNumber == 3 {
+            presentTipAlert(withMessage: Constants.Scripts.passed3X3, withTitle: "Rock on!", dismissButton: "Awesome Possum!")
+        }
+        if levelNumber == 6 {
+            UserDefaults.standard.set(true, forKey: "beatLevel6")
+            if store == nil {store = UpgradeHandler(completion: passedLevel6)}
+            else {passedLevel6()}
+        }
+        if ((levelNumber < 6 || (UserDefaults.standard.value(forKey: "hasPaid")) as! Bool) && levelNumber < 12 ){
             UserDefaults.standard.set(level!.getLevelNumber() + 1, forKey: "highestLevel")
             //TODO: Update level buttons
+        }
+    }
+    
+    func passedLevel6(){
+        if !((UserDefaults.standard.value(forKey: "hasPaid")) as! Bool) {
+            presentTipAlert(withMessage: Constants.Scripts.doneFreeLevels, withTitle: "Upgrade", dismissButton: "Thanks!")
         }
     }
     
@@ -333,8 +360,15 @@ class GameViewController: UIViewController {
         }
     }
     
+    func presentTipAlert(withMessage message : String, withTitle title : String = "", dismissButton : String = "That's cool.") {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: dismissButton, style: .cancel, handler: nil))
+        self.present(alert, animated: true)
+    }
+    
     func presentActionSheet(withMessage message: String, currentLevel : Bool = false, random : Bool = false) {
         let alert = UIAlertController(title: nil, message: message, preferredStyle: .actionSheet)
+        alert.popoverPresentationController?.sourceView = self.view!
         alert.addAction(UIAlertAction(title: "Continue Current Level", style: .cancel, handler: nil))
         if currentLevel {
             alert.addAction(UIAlertAction(title: "Reset Level", style: .default, handler: { action in
@@ -358,21 +392,37 @@ class GameViewController: UIViewController {
         }
         if !UserDefaults.standard.bool(forKey: "hasPaid") {
             alert.addAction(UIAlertAction(title:"Upgrade For Unlimited Levels", style: .default, handler: { action in
-                // TODO: Add in-app purchases.
-                UserDefaults.setValue(true, forKey: "hasPaid")
+                if self.store == nil { self.store = UpgradeHandler(completion: self.responseToPurchaseRequest)}
+                else { self.responseToPurchaseRequest() }
             }))
         }
         
         self.present(alert, animated: true)
     }
     
+    func responseToPurchaseRequest() {
+        let (success,message) = self.store!.getPaymentAlertInfo()
+        if success {
+            let alert = UIAlertController(title: "Upgrade", message: message, preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "No thanks.", style: .cancel, handler: nil))
+            alert.addAction(UIAlertAction(title: "Upgrade!", style: .default, handler: { click in
+                self.store!.buyProduct()
+            }))
+            self.present(alert, animated: true)
+        } else {
+            presentTipAlert(withMessage: message, withTitle: "Unable To Upgrade", dismissButton: "OH NO!")
+        }
+    }
+    
     func switchTo(level: Int) {
+        switchingToLevel = level
         if level == self.level?.levelNumber {
-            presentActionSheet(withMessage: "You're currently playing level \(level)", currentLevel: true, random: (level == 3 || level == 11 || level == 12))
+            presentActionSheet(withMessage: "You're currently playing level \(level)", currentLevel: true, random: ((level == 3 || level == 11 || level == 12) && self.level!.hasPassed))
             return
         }
-        if level > 6 && !UserDefaults.standard.bool(forKey: "hasPaid") {
-            presentActionSheet(withMessage: "Level \(level) is currently blocked. Only levels 1-6 are available in free play. Upgrade for unlimited 4X4 and 5X5 levels.")
+        if level > 6 {
+            if store == nil {store = UpgradeHandler(completion: clickedHigherLevel)}
+            else {clickedHigherLevel()}
         }
         else if level <= UserDefaults.standard.integer(forKey: "highestLevel") {
             let currentSize = self.level?.getSize()
@@ -380,11 +430,29 @@ class GameViewController: UIViewController {
             self.level = SudokuLevel(level: level)
             updateNumberOfCubeObjects(currentSize: currentSize!, newSize: (self.level?.getSize())!)
             changeAllCubeColors()
+            if level == 2 && tutorial {
+                presentTipAlert(withMessage: Constants.Scripts.secondLevel, withTitle: "Center Cube", dismissButton: "Makes Sense!")
+                tutorial = false
+            }
         } else {
             presentActionSheet(withMessage: "Level \(level) is currently blocked and will be unblocked when you beat level \(level - 1)")
         }
     }
     
+    func clickedHigherLevel() {
+        if !UserDefaults.standard.bool(forKey: "hasPaid") {
+            presentActionSheet(withMessage: "Level \(switchingToLevel!) is currently blocked. Only levels 1-6 are available in free play. Upgrade for unlimited 4X4 and 5X5 levels.")
+        } else if switchingToLevel! <= UserDefaults.standard.integer(forKey: "highestLevel") {
+            let currentSize = self.level?.getSize()
+            self.level?.persistData()
+            self.level = SudokuLevel(level: switchingToLevel!)
+            updateNumberOfCubeObjects(currentSize: currentSize!, newSize: (self.level?.getSize())!)
+            changeAllCubeColors()
+        } else {
+            presentActionSheet(withMessage: "Level \(switchingToLevel!) is currently blocked and will be unblocked when you beat level \(switchingToLevel! - 1)")
+        }
+    }
+        
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         let touch = touches.first!
         let location = touch.location(in: gameView)

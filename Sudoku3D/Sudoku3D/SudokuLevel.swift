@@ -57,6 +57,7 @@ class SudokuLevel {
                     arrayLength = arrayLength % 2 == 0 ? arrayLength/2 : (arrayLength/2 + 1)
                     self.state = SudokuLevel.dataToColorArray(withData: data, arrayLength: arrayLength)
                 } else {
+                    self.isComplete = false
                     self.state = SudokuLevel.answerHandler.pickRandomSoln(size: dimension)
                     let percentMissing = 40 + arc4random_uniform(40)
                     for i in 0..<dimension*dimension*dimension {
