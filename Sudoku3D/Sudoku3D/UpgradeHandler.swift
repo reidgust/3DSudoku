@@ -22,9 +22,11 @@ open class UpgradeHandler: NSObject  {
     private var productsRequestCompletionHandler: ProductsRequestCompletionHandler?
     private var product : SKProduct?
     private var initCompleteHandler : (() -> Void)
+    private var titleNode : TitleNode
 
-    init(completion : @escaping () -> Void) {
+    init(completion : @escaping () -> Void, titleNode: TitleNode) {
         initCompleteHandler = completion
+        self.titleNode = titleNode
         super.init()
         SKPaymentQueue.default().add(self)
         requestProducts(completedProductRequest)
@@ -114,6 +116,7 @@ extension UpgradeHandler: SKPaymentTransactionObserver {
         }
         if UserDefaults.standard.integer(forKey: "highestLevel") == 6 && UserDefaults.standard.bool(forKey: "beatLevel6") {
             UserDefaults.standard.set(7, forKey: "highestLevel")
+            titleNode.setAccessible(level: 7, isAccessible: true)
         }
         initCompleteHandler()
     }
@@ -142,9 +145,9 @@ extension UpgradeHandler: SKPaymentTransactionObserver {
         deliverPurchaseNotification()
         if UserDefaults.standard.integer(forKey: "highestLevel") == 6 && UserDefaults.standard.bool(forKey: "beatLevel6") {
             UserDefaults.standard.set(7, forKey: "highestLevel")
+            titleNode.setAccessible(level: 7, isAccessible: true)
         }
         SKPaymentQueue.default().finishTransaction(transaction)
-        print("Complete")
         UserDefaults.standard.set(true, forKey: "hasPaid")
     }
     
@@ -152,12 +155,10 @@ extension UpgradeHandler: SKPaymentTransactionObserver {
         if transaction.original?.payment.productIdentifier == nil { return }
         deliverPurchaseNotification()
         SKPaymentQueue.default().finishTransaction(transaction)
-        print("Restore")
         UserDefaults.standard.set(true, forKey: "hasPaid")
     }
     
     private func fail(transaction: SKPaymentTransaction) {
-        print("Fail")
         if let transactionError = transaction.error as NSError?,
             let localizedDescription = transaction.error?.localizedDescription,
             transactionError.code != SKError.paymentCancelled.rawValue {
@@ -171,12 +172,3 @@ extension UpgradeHandler: SKPaymentTransactionObserver {
         NotificationCenter.default.post(Notification(name: NSNotification.Name("Upgrade:Sudoku3D")))
     }
 }
-
-
-//NotificationCenter.default.addObserver(self, selector: #selector(MasterViewController.handlePurchaseNotification(_:)),
-//                                           name: .IAPHelperPurchaseNotification,
-//                                           object: nil)
-
-//@objc func restoreTapped(_ sender: AnyObject) {RazeFaceProducts.store.restorePurchases()}
-
-//@objc func handlePurchaseNotification(_ notification: Notification) { let productID = notification.object as? String }

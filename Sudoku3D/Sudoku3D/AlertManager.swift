@@ -54,7 +54,7 @@ class AlertManager {
             }))
             delegate.present(alert, animated: true)
         } else {
-            presentTipAlert(withMessage: message, withTitle: "Unable To Upgrade", dismissButton: "OH NO!")
+            presentTipAlert(withMessage: message, withTitle: "Unable To Upgrade", dismissButton: "Got it!")
         }
     }
 }

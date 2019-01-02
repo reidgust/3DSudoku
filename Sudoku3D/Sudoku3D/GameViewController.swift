@@ -91,18 +91,18 @@ class GameViewController: UIViewController, LevelObserver {
         }
     }
     
-    func changeLevel(to newLevel : Int, random : Bool = false) {
+    func changeLevel(to newLevel : Int) {
         let currentSize = level?.getSize()
-        level = SudokuLevel(level: newLevel, random: random)
+        level = SudokuLevel(level: newLevel)
         updateNumberOfCubeObjects(previousSize : currentSize!)
-        titleNode.updateLevel((level?.getLevelNumber())!)
         level?.addObserver(self)
+        titleNode.updateLevel((level?.getLevelNumber())!)
     }
     
     func resetCube() { level?.resetLevel() }
 
     func randomLevel() {
-        changeLevel(to: (level?.getLevelNumber())!, random: true)
+        level!.randomLevel()
     }
     
     func purchaseRequest() {
@@ -129,11 +129,12 @@ class GameViewController: UIViewController, LevelObserver {
             alertManager!.presentTipAlert(withMessage: Constants.Scripts.passed3X3, withTitle: "Rock on!", dismissButton: "Awesome Possum!")
         } else if levelNumber == 6 {
             UserDefaults.standard.set(true, forKey: "beatLevel6")
-            if (!UserDefaults.standard.bool(forKey: "hasPaid") && store == nil) {store = UpgradeHandler(completion: passedLevel6)}
+            if (!UserDefaults.standard.bool(forKey: "hasPaid") && store == nil) {store = UpgradeHandler(completion: passedLevel6,titleNode:titleNode)}
             else {passedLevel6()}
         }
         if ((levelNumber < 6 || (UserDefaults.standard.value(forKey: "hasPaid")) as! Bool) && levelNumber < 12 ){
             UserDefaults.standard.set(levelNumber + 1, forKey: "highestLevel")
+            titleNode.setAccessible(level: levelNumber + 1, isAccessible: true)
             //TODO: Update level buttons
         }
     }
@@ -160,7 +161,7 @@ class GameViewController: UIViewController, LevelObserver {
     
     func allowedToSwitch(toLevel level : Int) {
         self.level?.persistData()
-        changeLevel(to: level, random: false)
+        changeLevel(to: level)
         if level == 2 && UserDefaults.standard.bool(forKey: "showLevel2Tip")  {
             alertManager!.presentTipAlert(withMessage: Constants.Scripts.secondLevel, withTitle: "Center Cube", dismissButton: "Makes Sense!")
             UserDefaults.standard.set(false, forKey: "showLevel2Tip")
@@ -173,15 +174,15 @@ class GameViewController: UIViewController, LevelObserver {
             alertManager!.presentActionSheet(withMessage: "You're currently playing level \(level)", currentLevel: true, random: ((level == 3 || level == 11 || level == 12) && self.level!.hasPassed))
             return
         }
-        /*if level > 6 {
-            if (!UserDefaults.standard.bool(forKey: "hasPaid") && store == nil) {store = UpgradeHandler(completion: clickedHigherLevel)}
+        if level > 6 {
+            if (!UserDefaults.standard.bool(forKey: "hasPaid") && store == nil) {store = UpgradeHandler(completion: clickedHigherLevel,titleNode:titleNode)}
             else {clickedHigherLevel()}
         }
-        else if level <= UserDefaults.standard.integer(forKey: "highestLevel") { */
+        else if level <= UserDefaults.standard.integer(forKey: "highestLevel") {
             allowedToSwitch(toLevel: level)
-        /*} else {
+        } else {
             alertManager!.presentActionSheet(withMessage: "Level \(level) is currently blocked and will be unblocked when you beat level \(level - 1)")
-        }*/
+        }
     }
     
     func clickedHigherLevel() {

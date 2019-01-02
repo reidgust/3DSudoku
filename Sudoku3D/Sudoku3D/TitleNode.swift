@@ -42,38 +42,61 @@ class TitleNode : SCNNode {
     }
     
     private func makeLevelButtons() {
-       /* //let lock = CALayer(layer: "art.scnassets/lock-icon.png")
-        let layer = CALayer()
-        layer.frame = CGRect(x:0, y:0, width:1, height:1)
-        layer.backgroundColor = Constants.Colors.fill4.cgColor
-        
-        var textLayer = CATextLayer()
-        textLayer.frame = layer.bounds
-        textLayer.fontSize = layer.bounds.size.height
-        textLayer.string = "Test"
-        textLayer.alignmentMode = CATextLayerAlignmentMode.left
-        textLayer.foregroundColor = Constants.Colors.title.cgColor
-        textLayer.display()
-        layer.addSublayer(textLayer)
-        //var image = UIImage(named:"art.scnassets/lock-icon.png")! */
-        
-        
+        let highestLevel = UserDefaults.standard.integer(forKey: "highestLevel")
         for i in 1...12 {
-            let lvlNode = SCNNode(geometry : (SCNSphere(radius: 2)))
-            switch i {
-            case 1...3:
-                lvlNode.geometry!.firstMaterial?.diffuse.contents = Constants.Colors.fillColors[8]
-            case 4...11:
-                lvlNode.geometry!.firstMaterial?.diffuse.contents = Constants.Colors.fillColors[9]
-            case 12:
-                lvlNode.geometry!.firstMaterial?.diffuse.contents = Constants.Colors.fillColors[10]
-            default:
-                lvlNode.geometry!.firstMaterial?.diffuse.contents = Constants.Colors.fillColors[10]
-            }
+            let radius : Float = 2.6
+            let lvlNode = SCNNode(geometry : (SCNSphere(radius: CGFloat(radius))))
+            let image = imageWithText(text:highestLevel >= i ? "\(i)" : "X", backgroundColor: getLevelIconColor(i))
+            lvlNode.geometry!.firstMaterial?.diffuse.contents = image
             lvlNode.name = "lvl\(i)"
-            lvlNode.position = SCNVector3(x: Float(i*4 - 24) - 2, y: 10, z: 0)
+            let xPos : Float = (2*Float(i)-13) * radius
+            lvlNode.position = SCNVector3(x: xPos, y: 12, z: 0)
             self.addChildNode(lvlNode)
         }
+    }
+    
+    func getLevelIconColor(_ level: Int) -> UIColor {
+        switch level {
+        case 1...3:
+            return Constants.Colors.fillColors[8]
+        case 4...11:
+            return Constants.Colors.fillColors[9]
+        case 12:
+            return Constants.Colors.fillColors[10]
+        default:
+            return Constants.Colors.fillColors[6]
+        }
+    }
+    
+    func imageWithText(text:String, backgroundColor:UIColor) -> UIImage? {
+        let imageSize = CGSize(width: 100, height: 100)
+        let imageRect = CGRect(origin: CGPoint.zero, size: imageSize)
+        UIGraphicsBeginImageContext(imageSize)
+        defer { UIGraphicsEndImageContext() }
+        guard let context = UIGraphicsGetCurrentContext() else { return nil }
+        context.setFillColor(backgroundColor.cgColor)
+        context.fill(imageRect)
+        if text != "X" {
+            let paragraphStyle = NSMutableParagraphStyle()
+            paragraphStyle.alignment = .center
+            let attributes = [
+                NSAttributedString.Key.font: UIFont(name: "TimesNewRomanPS-BoldMT", size: 20),
+                NSAttributedString.Key.paragraphStyle: paragraphStyle,
+                NSAttributedString.Key.foregroundColor: UIColor.black
+            ]
+            
+            let textSize = text.size(withAttributes: attributes as [NSAttributedString.Key : Any])
+            text.draw(at: CGPoint(x: imageSize.width/2 - textSize.width/2, y: imageSize.height/2 - textSize.height/2), withAttributes: attributes as [NSAttributedString.Key : Any])
+        }else {
+            if let lock = UIImage(named: "art.scnassets/lock-icon.png") {
+                let rect = CGRect(origin: CGPoint(x: imageRect.midX - 13, y: imageRect.midY - 18),size: CGSize(width: 26, height: 36))
+                lock.draw(in: rect)
+            }
+        }
+        if let image = UIGraphicsGetImageFromCurrentImageContext() {
+            return image
+        }
+        return nil
     }
     
     private func makeSudokuTitle() {
@@ -92,18 +115,8 @@ class TitleNode : SCNNode {
     public func updateLevel(_ level : Int) {
         currentLevel.string = "Current Level: \(level)"
     }
-    
-    /*public func clickedHigherLevel() {
-        if !UserDefaults.standard.bool(forKey: "hasPaid") {
-            presentActionSheet(withMessage: "Level \(switchingToLevel!) is currently blocked. Only levels 1-6 are available in free play. Upgrade for unlimited 4X4 and 5X5 levels.")
-        } else if switchingToLevel! <= UserDefaults.standard.integer(forKey: "highestLevel") {
-            let currentSize = self.level?.getSize()
-            self.level?.persistData()
-            self.level = SudokuLevel(level: switchingToLevel!)
-            updateNumberOfCubeObjects(currentSize: currentSize!, newSize: (self.level?.getSize())!)
-            changeAllCubeColors()
-        } else {
-            presentActionSheet(withMessage: "Level \(switchingToLevel!) is currently blocked and will be unblocked when you beat level \(switchingToLevel! - 1)")
-        }
-    }*/
+
+    public func setAccessible(level: Int, isAccessible: Bool) {
+        childNode(withName: "lvl\(level)", recursively: false)?.geometry?.firstMaterial!.diffuse.contents = imageWithText(text: isAccessible ? "\(level)" : "X", backgroundColor: getLevelIconColor(level))
+    }
 }

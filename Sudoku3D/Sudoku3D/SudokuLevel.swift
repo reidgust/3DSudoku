@@ -40,7 +40,7 @@ class SudokuLevel {
     var dimension : Int
     var observers : [LevelObserver]  = []
 
-    init(level: Int, random: Bool = false) {
+    init(level: Int) {
         levelNumber = level
         dimension = level < 4 ? 3 : (level < 12 ? 4 : 5)
         if let result = getSavedLevel()
@@ -59,20 +59,9 @@ class SudokuLevel {
             }
             if let data = result.value(forKey: "state") as? NSData
             {
-                if !random {
-                    var arrayLength = dimension*dimension*dimension
-                    arrayLength = arrayLength % 2 == 0 ? arrayLength/2 : (arrayLength/2 + 1)
-                    self.state = SudokuLevel.dataToColorIndexArray(withData: data, arrayLength: arrayLength)
-                } else {
-                    self.isComplete = false
-                    self.state = SudokuLevel.answerHandler.pickRandomSoln(size: dimension)
-                    let percentMissing = 40 + arc4random_uniform(40)
-                    for i in 0..<dimension*dimension*dimension {
-                        if arc4random_uniform(100) > percentMissing {
-                            self.state[i] = 0
-                        }
-                    }
-                }
+                var arrayLength = dimension*dimension*dimension
+                arrayLength = arrayLength % 2 == 0 ? arrayLength/2 : (arrayLength/2 + 1)
+                self.state = SudokuLevel.dataToColorIndexArray(withData: data, arrayLength: arrayLength)
             }
         }
         else
@@ -84,6 +73,20 @@ class SudokuLevel {
         }
     }
 
+    func randomLevel() {
+        self.isComplete = false
+        self.state = SudokuLevel.answerHandler.pickRandomSoln(size: dimension)
+        let percentMissing = 40 + arc4random_uniform(40)
+        for i in 0..<dimension*dimension*dimension {
+            if arc4random_uniform(100) > percentMissing {
+                self.state[i] = 0
+            }
+        }
+        for observer in observers {
+            observer.update(state : state , complete: isComplete)
+        }
+    }
+    
     func addObserver(_ obs : LevelObserver) {
         observers.append(obs)
         obs.update(state : state , complete: isComplete)

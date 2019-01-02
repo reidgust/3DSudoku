@@ -42,8 +42,8 @@ struct Constants {
         static let secondLevel = "The middle square needs to be filled in too. It has been copied down at the bottom. So to fill in the middle square, just click the bottom square."
         static let passedFirstLevel = "Congrats! You passed the first level. Once you pass a level the frame will light up gold. If you want to reset and play again click level 1 at the top. Otherwise, click level 2 to advance in the game."
         static let passed3X3 = "Congrats! You've beat all Size 3 levels! Pro tip: Once you beat the last level of each size (Levels 3, 11, 12), it can be turned into unlimited random levels! Just click the level button at the top."
-        static let doneFreeLevels = "You've completed all the free levels. Feel free to play level 3 random levels to your heats content, or click on level 7 to upgrade for more fun!"
-        static let upgrade = "Upgrading will give you potential access to all 12 levels including unlimited random levels generated after completing level 4 and 5."
+        static let doneFreeLevels = "You've completed all the free levels. Feel free to play level 3 random levels to your hearts content, or click on level 7 to upgrade for more fun!"
+        static let upgrade = "Upgrading will give you potential access to all 12 levels including unlimited random levels generated after completing levels 11 and 12."
         static let cantPay = "Sorry, your settings don't seem to allow you to purchase the upgrade. Please continue to enjoy the free play."
         static let noProductsAvailable = "Sorry, there seems to be an issue finding the upgrade. Make sure you are connected to the internet, or check back later. Sorry for the inconvenience"
     }
