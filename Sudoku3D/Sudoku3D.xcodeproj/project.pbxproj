@@ -19,6 +19,10 @@
 		300B7883218EAB390037205C /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 300B7882218EAB390037205C /* Constants.swift */; };
 		3030C27721D8200D007CB2E6 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3030C27621D8200D007CB2E6 /* StoreKit.framework */; };
 		3030C27B21D82738007CB2E6 /* UpgradeHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3030C27A21D82738007CB2E6 /* UpgradeHandler.swift */; };
+		3030C27F21DBF0D0007CB2E6 /* TitleNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3030C27E21DBF0D0007CB2E6 /* TitleNode.swift */; };
+		3030C28121DBF912007CB2E6 /* AlertManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3030C28021DBF912007CB2E6 /* AlertManager.swift */; };
+		3030C28321DBFA3F007CB2E6 /* Cube.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3030C28221DBFA3F007CB2E6 /* Cube.swift */; };
+		3030C28521DBFA52007CB2E6 /* CubeStructure.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3030C28421DBFA52007CB2E6 /* CubeStructure.swift */; };
 		3032412421C57CA100A87762 /* Answers5.json in Resources */ = {isa = PBXBuildFile; fileRef = 3032412321C57CA100A87762 /* Answers5.json */; };
 		3032412621C95B5400A87762 /* SudokuLevel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3032412521C95B5400A87762 /* SudokuLevel.swift */; };
 		306F0F4F21950B29000916FF /* LevelProgress.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 306F0F4D21950B29000916FF /* LevelProgress.xcdatamodeld */; };
@@ -61,6 +65,10 @@
 		300B7882218EAB390037205C /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		3030C27621D8200D007CB2E6 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		3030C27A21D82738007CB2E6 /* UpgradeHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpgradeHandler.swift; sourceTree = "<group>"; };
+		3030C27E21DBF0D0007CB2E6 /* TitleNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TitleNode.swift; sourceTree = "<group>"; };
+		3030C28021DBF912007CB2E6 /* AlertManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertManager.swift; sourceTree = "<group>"; };
+		3030C28221DBFA3F007CB2E6 /* Cube.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cube.swift; sourceTree = "<group>"; };
+		3030C28421DBFA52007CB2E6 /* CubeStructure.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CubeStructure.swift; sourceTree = "<group>"; };
 		3032412321C57CA100A87762 /* Answers5.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Answers5.json; sourceTree = "<group>"; };
 		3032412521C95B5400A87762 /* SudokuLevel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SudokuLevel.swift; sourceTree = "<group>"; };
 		306F0F4E21950B29000916FF /* LevelProgress.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = LevelProgress.xcdatamodel; sourceTree = "<group>"; };
@@ -125,8 +133,12 @@
 				300B7882218EAB390037205C /* Constants.swift */,
 				300B784E218D176A0037205C /* AppDelegate.swift */,
 				300B7852218D176A0037205C /* GameViewController.swift */,
-				30FE360B21918A9A00114A94 /* AnswerHandler.swift */,
 				3032412521C95B5400A87762 /* SudokuLevel.swift */,
+				3030C28221DBFA3F007CB2E6 /* Cube.swift */,
+				3030C28421DBFA52007CB2E6 /* CubeStructure.swift */,
+				3030C27E21DBF0D0007CB2E6 /* TitleNode.swift */,
+				3030C28021DBF912007CB2E6 /* AlertManager.swift */,
+				30FE360B21918A9A00114A94 /* AnswerHandler.swift */,
 				3030C27A21D82738007CB2E6 /* UpgradeHandler.swift */,
 				300B785C218D176A0037205C /* Info.plist */,
 				300B7857218D176A0037205C /* Assets.xcassets */,
@@ -305,11 +317,15 @@
 			files = (
 				30FE360C21918A9A00114A94 /* AnswerHandler.swift in Sources */,
 				3030C27B21D82738007CB2E6 /* UpgradeHandler.swift in Sources */,
+				3030C27F21DBF0D0007CB2E6 /* TitleNode.swift in Sources */,
+				3030C28521DBFA52007CB2E6 /* CubeStructure.swift in Sources */,
 				3032412621C95B5400A87762 /* SudokuLevel.swift in Sources */,
 				300B7853218D176A0037205C /* GameViewController.swift in Sources */,
 				300B784F218D176A0037205C /* AppDelegate.swift in Sources */,
+				3030C28321DBFA3F007CB2E6 /* Cube.swift in Sources */,
 				306F0F4F21950B29000916FF /* LevelProgress.xcdatamodeld in Sources */,
 				300B7883218EAB390037205C /* Constants.swift in Sources */,
+				3030C28121DBF912007CB2E6 /* AlertManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -23,6 +23,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             UserDefaults.standard.set(1, forKey: "currentLevel")
             UserDefaults.standard.set(false,forKey: "hasPaid")
             UserDefaults.standard.set(false,forKey: "beatLevel6")
+            UserDefaults.standard.set(true, forKey: "showLevel2Tip")
             UserDefaults.standard.set(1,forKey:"highestLevel")
             firstTime = true
         }

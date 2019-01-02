@@ -10,18 +10,17 @@ import Foundation
 import UIKit
 
 class AnswerHandler {
-    static let colorChoices = [Constants.Colors.fill1, Constants.Colors.fill2, Constants.Colors.fill3, Constants.Colors.fill4,Constants.Colors.fill5]
     static let validAnswers3 : [[UInt32]] = [[26145,100422,135576],[26145,135576,100422],[26712,98721,136710],[26712,136710,98721]]
     static var validAnswers4 : [[UInt32]] = []
     static var validAnswers5 : [[UInt16]] = []
-    static var proposedAnswer: [UIColor?] = []
+    static var proposedAnswer: [UInt8] = []
     static var proposedDimension: Int = 0
     
-    public func pickRandomSoln(size dimension: Int) -> [UIColor] {
+    public func pickRandomSoln(size dimension: Int) -> [UInt8] {
         // Randomize color choices otherwise first column will always be the same, as it is the reference column.
-        var refCols : [UIColor] = []
-        var solnCols : [UIColor] = []
-        var colChoices = Array(AnswerHandler.colorChoices[0..<dimension])
+        var refCols : [UInt8] = []
+        var solnCols : [UInt8] = []
+        var colChoices : [UInt8] = Array(UInt8(6)..<UInt8((6 + dimension)))
         for _ in 0..<dimension {
             let index = arc4random_uniform(UInt32(colChoices.count))
             refCols.append(colChoices.remove(at: Int(index)))
@@ -33,7 +32,7 @@ class AnswerHandler {
         switch dimension {
         case 2:
             // Simple 2x2 Only used for potential tutorial level.
-            return [Constants.Colors.fill1,Constants.Colors.fill2,Constants.Colors.fill2,Constants.Colors.fill1,Constants.Colors.fill2,Constants.Colors.fill1,Constants.Colors.fill1,Constants.Colors.fill2]
+            return [6,7,7,6,7,6,6,7]
         case 3:
             randVal = AnswerHandler.validAnswers3[Int(arc4random_uniform(UInt32(4)))];
             numBits = 2
@@ -48,7 +47,7 @@ class AnswerHandler {
                 let val = rand[col]
                 for row in 0..<5 {
                     let index = Int((val >> ((4-row) * 3)) & UInt16(0x7))
-                    solnCols.append(refCols[index])
+                    solnCols.append(UInt8(index + 6))
                 }
             }
             return solnCols
@@ -64,7 +63,7 @@ class AnswerHandler {
             if row == 0 { val = randVal[col]}
 
             let index = Int(val >> ((numCols - row - 1) * numBits)) & Int(pow(Double(numBits),2.0) - 1)
-            solnCols.append(refCols[index])
+            solnCols.append(UInt8(index + 6))
         }
         return solnCols
     }
@@ -91,21 +90,8 @@ class AnswerHandler {
     }
     
     // Helper function for check Index, which is only called if there are no Clear cubes.
-    private static func getColorIndex(_ color:UIColor) -> Int {
-        switch color {
-        case Constants.Colors.fill1,Constants.Colors.fill1Selected:
-            return 0
-        case Constants.Colors.fill2,Constants.Colors.fill2Selected:
-            return 1
-        case Constants.Colors.fill3,Constants.Colors.fill3Selected:
-            return 2
-        case Constants.Colors.fill4,Constants.Colors.fill4Selected:
-            return 3
-        case Constants.Colors.fill5,Constants.Colors.fill5Selected:
-            return 4
-        default:
-            return -1
-        }
+    private static func getColorIndex(_ color:UInt8) -> UInt8 {
+        return color > 5 ? UInt8(color - 5) : color
     }
     
     private static func checkIndex(_ i:Int) ->Bool {
@@ -115,25 +101,25 @@ class AnswerHandler {
         var j : Int = (i/dim) * dim
         for j in (i/dim)*dim..<(((i/dim)*dim)+dim) {
             if j == i {break}
-            if getColorIndex(proposedAnswer[i]!) == getColorIndex(proposedAnswer[j]!) {return false}
+            if getColorIndex(proposedAnswer[i]) == getColorIndex(proposedAnswer[j]) {return false}
         }
         // Check the rows
         for k in 0..<dim {
             j = (i % dim) + (i/dim2) * dim2 + dim * k
             if j == i {break}
-            if getColorIndex(proposedAnswer[i]!) == getColorIndex(proposedAnswer[j]!) {return false}
+            if getColorIndex(proposedAnswer[i]) == getColorIndex(proposedAnswer[j]) {return false}
         }
         // Check the depths
         for k in 0..<dim {
             j = (i % dim2) + dim2 * k
             if j == i {break}
-            if getColorIndex(proposedAnswer[i]!) == getColorIndex(proposedAnswer[j]!) {return false}
+            if getColorIndex(proposedAnswer[i]) == getColorIndex(proposedAnswer[j]) {return false}
         }
         return true
     }
     
-    public static func checkAnswer(_ ans: [UIColor?],mostRecentIndexChanged index: Int) -> Bool {
-        if ans.contains(Constants.Colors.clear) { return false }
+    public static func checkAnswer(_ ans: [UInt8],mostRecentIndexChanged index: Int) -> Bool {
+        if ans.contains(0) { return false }
         proposedAnswer = ans;
         proposedDimension = ans.count == 27 ? 3 : (ans.count == 64 ? 4 : 5)
         // First check the cube most recently changed

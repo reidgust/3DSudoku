@@ -17,9 +17,15 @@ enum LevelStatus {
     case undidWin
 }
 
+protocol LevelObserver {
+    var id : Int { get }
+    func update(block : Int, colorIndex: UInt8, status : LevelStatus)
+    func update(state : [UInt8] , complete : Bool)
+}
+
 class SudokuLevel {
     static let answerHandler = AnswerHandler()
-    var state : [UIColor] = []
+    var state : [UInt8] = []
     var _hasPassed : Bool = false
     var hasPassed : Bool {
         set {_hasPassed = newValue}
@@ -32,6 +38,7 @@ class SudokuLevel {
     }
     var levelNumber : Int
     var dimension : Int
+    var observers : [LevelObserver]  = []
 
     init(level: Int, random: Bool = false) {
         levelNumber = level
@@ -55,14 +62,14 @@ class SudokuLevel {
                 if !random {
                     var arrayLength = dimension*dimension*dimension
                     arrayLength = arrayLength % 2 == 0 ? arrayLength/2 : (arrayLength/2 + 1)
-                    self.state = SudokuLevel.dataToColorArray(withData: data, arrayLength: arrayLength)
+                    self.state = SudokuLevel.dataToColorIndexArray(withData: data, arrayLength: arrayLength)
                 } else {
                     self.isComplete = false
                     self.state = SudokuLevel.answerHandler.pickRandomSoln(size: dimension)
                     let percentMissing = 40 + arc4random_uniform(40)
                     for i in 0..<dimension*dimension*dimension {
                         if arc4random_uniform(100) > percentMissing {
-                            self.state[i] = Constants.Colors.clear
+                            self.state[i] = 0
                         }
                     }
                 }
@@ -70,20 +77,28 @@ class SudokuLevel {
         }
         else
         {
-            self.state = SudokuLevel.dataArrayToColorArray(withArray: Constants.Levels[levelNumber]!)
+            self.state = SudokuLevel.dataArrayToColorIndexArray(withArray: Constants.Levels[levelNumber]!)
+        }
+        for observer in observers {
+            observer.update(state : state , complete: isComplete)
         }
     }
 
+    func addObserver(_ obs : LevelObserver) {
+        observers.append(obs)
+        obs.update(state : state , complete: isComplete)
+    }
+    
+    func removeObserver(_ obs : LevelObserver) {
+        observers = observers.filter{ $0.id != obs.id}
+    }
+    
     func getLevelNumber() -> Int {
         return levelNumber
     }
     
-    func getColour(_ i:Int) -> UIColor {
+    func getColour(_ i:Int) -> UInt8 {
         return state[i]
-    }
-    
-    func setColor(_ i:Int, colour : UIColor) {
-        state[i] = colour
     }
     
     func getDimension() -> Int {
@@ -93,22 +108,38 @@ class SudokuLevel {
     func getSize() -> Int {
         return dimension * dimension * dimension
     }
+    
+    func nextColor(atIndex index : Int) {
+        if state[index] > 5 { return }
+        setColor(colorIndex: UInt8((state[index] + 1) % (UInt8(dimension + 1))) ,atIndex: index)
+    }
 
-    func setColor(_ color : UIColor, atIndex index : Int) -> LevelStatus {
+    func setColor(colorIndex color : UInt8, atIndex index : Int) {
         state[index] = color
+        var status : LevelStatus = .normal
         if AnswerHandler.checkAnswer(state,mostRecentIndexChanged: index) {
             isComplete = true
             if hasPassed {
-                return LevelStatus.wonAgain
+                status = .wonAgain
+            } else {
+                hasPassed = true
+                status = .wonFirstTime
             }
-            hasPassed = true
-            return LevelStatus.wonFirstTime
-        } else {
-            if isComplete {
-                isComplete = false
-                return LevelStatus.undidWin
-            }
-            return LevelStatus.normal
+        } else if isComplete {
+            isComplete = false
+            status = .undidWin
+        }
+        for observer in observers {
+            observer.update(block: index, colorIndex: color, status: status)
+        }
+    }
+    
+    func resetLevel() {
+        for i in 0..<state.count {
+            if state[i] < 6 {state[i] = 0}
+        }
+        for observer in observers {
+            observer.update(state: state, complete: false)
         }
     }
     
@@ -122,7 +153,7 @@ class SudokuLevel {
         level.setValue(levelNumber, forKey: "levelNumber")
         level.setValue(hasPassed, forKey: "hasPassed")
         level.setValue(isComplete, forKey: "isComplete")
-        let data = SudokuLevel.colorArrayToData(state)
+        let data = SudokuLevel.colorIndexArrayToData(state)
         level.setValue(data, forKey: "state")
         do
         {
@@ -150,99 +181,40 @@ class SudokuLevel {
         }
     }
     
-    private static func colorArrayToData(_ stateTemp:[UIColor]) -> NSData {
-        // Save space by first converting to numeric representation of colors
+    private static func colorIndexArrayToData(_ stateTemp:[UInt8]) -> NSData {
         var array : [UInt8] = []
         var temp : UInt8?
         for i in 0..<stateTemp.count {
             if i % 2 == 0 {
-                temp = SudokuLevel.getColorCode(fromColor: stateTemp[i]) << 4
+                temp = stateTemp[i] << 4
                 // If there are an odd number of cubes.
                 if i+1 == stateTemp.count {
                     array.append(temp!)
                 }
             }
             else {
-                array.append(temp! | (SudokuLevel.getColorCode(fromColor: stateTemp[i]) & 0xf))
+                array.append(temp! | (stateTemp[i] & 0xf))
                 temp = nil
             }
         }
         return NSData(bytes: array, length: array.count)
     }
     
-    private static func dataToColorArray(withData data: NSData, arrayLength : Int) -> [UIColor] {
+    private static func dataToColorIndexArray(withData data: NSData, arrayLength : Int) -> [UInt8] {
         var array : [UInt8] = Array(repeating: 0, count: arrayLength)
         data.getBytes(&array, length:arrayLength)
-        return dataArrayToColorArray(withArray: array)
+        return dataArrayToColorIndexArray(withArray: array)
     }
     
-    private static func dataArrayToColorArray(withArray array: [UInt8]) -> [UIColor] {
-        var stateTemp : [UIColor] = []
+    private static func dataArrayToColorIndexArray(withArray array: [UInt8]) -> [UInt8] {
+        var stateTemp : [UInt8] = []
         for i in 0..<array.count{
-            stateTemp.append(SudokuLevel.getColor(storedAsIndex: (array[i] >> 4 ) & 0xf))
+            stateTemp.append((array[i] >> 4 ) & 0xf)
             // If not the last elem of an odd dimension cube
             if !((i + 1 == array.count) && (i == 13 || i == 62)) {
-                stateTemp.append(SudokuLevel.getColor(storedAsIndex: array[i] & 0xf))
+                stateTemp.append(array[i] & 0xf)
             }
         }
         return stateTemp
-    }
-
-    private static func getColorCode(fromColor color: UIColor) -> UInt8 {
-        switch color {
-        case Constants.Colors.clear:
-            return 0
-        case Constants.Colors.fill1:
-            return 1
-        case Constants.Colors.fill1Selected:
-            return 2
-        case Constants.Colors.fill2:
-            return 3
-        case Constants.Colors.fill2Selected:
-            return 4
-        case Constants.Colors.fill3:
-            return 5
-        case Constants.Colors.fill3Selected:
-            return 6
-        case Constants.Colors.fill4:
-            return 7
-        case Constants.Colors.fill4Selected:
-            return 8
-        case Constants.Colors.fill5:
-            return 9
-        case Constants.Colors.fill5Selected:
-            return 10
-        default:
-            return 0
-        }
-    }
-
-    private static func getColor(storedAsIndex index: UInt8) -> UIColor {
-        switch index {
-        case 0:
-            return Constants.Colors.clear
-        case 1:
-            return Constants.Colors.fill1
-        case 2:
-            return Constants.Colors.fill1Selected
-        case 3:
-            return Constants.Colors.fill2
-        case 4:
-            return Constants.Colors.fill2Selected
-        case 5:
-            return Constants.Colors.fill3
-        case 6:
-            return Constants.Colors.fill3Selected
-        case 7:
-            return Constants.Colors.fill4
-        case 8:
-            return Constants.Colors.fill4Selected
-        case 9:
-            return Constants.Colors.fill5
-        case 10:
-             return Constants.Colors.fill5Selected
-        default:
-            return Constants.Colors.clear
-        }
     }
 }
