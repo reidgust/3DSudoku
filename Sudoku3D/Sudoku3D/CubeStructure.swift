@@ -26,7 +26,7 @@ class CubeStructure : SCNNode, LevelObserver{
     var numberOfColors : Int
     var dimension : Int
     var cubes : [Cube] = []
-    static let innerCubeIndices = [cubeType.InnerThree : [13], cubeType.InnerFour : [21,22,25,26,37,38,41,42], cubeType.InnerFive : [31,32,33,36,37,38,41,42,43,56,57,58,61,62,63,66,67,68,81,82,83,86,87,88,91,92,93], cubeType.InnerInnerFive : [62]]
+    static let innerCubeIndices = [cubeType.InnerThree : [13:0], cubeType.InnerFour : [21:0,22:1,25:2,26:3,37:4,38:5,41:6,42:7], cubeType.InnerFive : [31:0,32:1,33:2,36:3,37:4,38:5,41:6,42:7,43:8,56:9,57:10,58:11,61:12,62:13,63:14,66:15,67:16,68:17,81:18,82:19,83:20,86:21,87:22,88:23,91:24,92:25,93:26], cubeType.InnerInnerFive : [62:0]]
     
     init(numberOfColors : Int, dimension : Int, delegate : GameViewController, masterCube : CubeStructure? = nil) {
         self.numberOfColors = numberOfColors
@@ -43,7 +43,7 @@ class CubeStructure : SCNNode, LevelObserver{
         self.light!.temperature = 500
         self.light!.intensity = 500
         self.name = "structureSized\(dimension)"
-        var yPos = dimension == 5 ? 2 : 0
+        var yPos : Float = dimension == 5 ? 2 : 0
         switch type {
         case .Outer:
             break
@@ -52,9 +52,9 @@ class CubeStructure : SCNNode, LevelObserver{
         case .InnerFour:
             yPos -= 10
         case .InnerFive:
-            yPos -= 10
+            yPos -= 7.5
         case .InnerInnerFive:
-            yPos -= 17
+            yPos -= 13.2
         }
         self.position = SCNVector3(0,yPos,0)
         createAndPlaceCubes()
@@ -65,7 +65,10 @@ class CubeStructure : SCNNode, LevelObserver{
     }
     
     func update(block: Int, colorIndex: UInt8, status: LevelStatus) {
-        cubes[block].setColor(index: colorIndex)
+        if type == cubeType.Outer {cubes[block].setColor(index: colorIndex)}
+        else if let newIndex = CubeStructure.innerCubeIndices[type]?[block] {
+            cubes[newIndex].setColor(index: colorIndex)
+        }
         statusUpdate(status: status)
     }
     
@@ -74,17 +77,20 @@ class CubeStructure : SCNNode, LevelObserver{
         case .wonFirstTime:
             fallthrough
         case .wonAgain:
-            self.childNode(withName: "Frame1", recursively: true)!.geometry?.firstMaterial?.diffuse.contents = Constants.Colors.frameWon
+            self.childNode(withName: "Frame", recursively: true)!.geometry?.firstMaterial?.diffuse.contents = Constants.Colors.frameWon
         case .undidWin:
             fallthrough
         case .normal:
-            self.childNode(withName: "Frame1", recursively: true)!.geometry?.firstMaterial?.diffuse.contents = Constants.Colors.frame
+            self.childNode(withName: "Frame", recursively: true)!.geometry?.firstMaterial?.diffuse.contents = Constants.Colors.frame
         }
     }
     
     func update(state: [UInt8], complete: Bool) {
         for i in 0..<state.count {
-            cubes[i].setColor(index: state[i])
+            if type == cubeType.Outer {cubes[i].setColor(index: state[i])}
+            else if let newIndex = CubeStructure.innerCubeIndices[type]?[i] {
+                cubes[newIndex].setColor(index: state[i])
+            }
         }
         if complete {statusUpdate(status: .wonAgain)}
         else {statusUpdate(status: .normal)}
@@ -107,17 +113,20 @@ class CubeStructure : SCNNode, LevelObserver{
 
     func createAndPlaceCubes(){
         if type == CubeStructure.cubeType.Outer {
-            for i in 0..<Int(pow(Double(dimension),3.0)) {
+            let starterCube = Cube(number: 0, numberOfColors: numberOfColors, colorIndex: 0, isComplete: false)
+            cubes = Array<Cube>(repeating: starterCube, count: dimension*dimension*dimension)
+            for i in 0..<(dimension*dimension*dimension) {
                 let cube = Cube(number: i, numberOfColors: numberOfColors, colorIndex: 0, isComplete: false)
-                cubes.append(cube)
+                cubes[i] = cube
                 cube.position = getCubePosition(index:i)
                 self.addChildNode(cube)
             }
         } else {
+            cubes = Array<Cube>(repeating: masterCube!.copyCube(0), count: CubeStructure.innerCubeIndices[type]!.count)
             for i in CubeStructure.innerCubeIndices[type]! {
-                let cube = masterCube!.copyCube(i)
-                //cubes.append(cube)
-                //cube.position = getCubePosition(index:i)
+                let cube = masterCube!.copyCube(i.key)
+                cube.position = getCubePosition(index:i.key)
+                cubes[i.value] = cube
                 self.addChildNode(cube)
             }
         }
@@ -126,10 +135,4 @@ class CubeStructure : SCNNode, LevelObserver{
     func copyCube(_ index : Int) -> Cube {
         return cubes[index].copy() as! Cube
     }
-
-    /*func removeCubes(oldSize: Int) {
-        for node in self.childNodes {
-            node.removeFromParentNode()
-        }
-    }*/
 }

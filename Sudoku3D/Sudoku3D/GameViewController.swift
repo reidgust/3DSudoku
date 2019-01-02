@@ -21,6 +21,7 @@ class GameViewController: UIViewController, LevelObserver {
     var switchingToLevel : Int?
     var targetCreationTime : TimeInterval = 0
     var cubeStructures : [CubeStructure] = []
+    let titleNode = TitleNode()
     var xAngle: Float = 0
     var yAngle: Float = 0
     var id: Int = 1
@@ -29,6 +30,7 @@ class GameViewController: UIViewController, LevelObserver {
         alertManager = AlertManager(caller: self)
         level = SudokuLevel(level: UserDefaults.standard.integer(forKey: "currentLevel"))
         super.viewDidLoad()
+        level?.addObserver(self)
         initView()
         initScene()
         initCamera()
@@ -69,7 +71,8 @@ class GameViewController: UIViewController, LevelObserver {
     }
     
     func createGameObjects() {
-        gameScene.rootNode.addChildNode(TitleNode())
+        gameScene.rootNode.addChildNode(titleNode)
+        titleNode.updateLevel((level?.getLevelNumber())!)
         makeCubes()
     }
     
@@ -83,15 +86,23 @@ class GameViewController: UIViewController, LevelObserver {
             cubeStructures.append(CubeStructure(numberOfColors: dim, dimension: 1, delegate: self, masterCube: cubeStructures[0]))
             gameScene.rootNode.addChildNode(cubeStructures[2])
         }
-        level?.addObserver(cubeStructures[0])
+        for cs in cubeStructures {
+            level?.addObserver(cs)
+        }
+    }
+    
+    func changeLevel(to newLevel : Int, random : Bool = false) {
+        let currentSize = level?.getSize()
+        level = SudokuLevel(level: newLevel, random: random)
+        updateNumberOfCubeObjects(previousSize : currentSize!)
+        titleNode.updateLevel((level?.getLevelNumber())!)
+        level?.addObserver(self)
     }
     
     func resetCube() { level?.resetLevel() }
 
     func randomLevel() {
-        let currentSize = level?.getSize()
-        level = SudokuLevel(level: (level?.getLevelNumber())!, random: true)
-        updateNumberOfCubeObjects(previousSize : currentSize!)
+        changeLevel(to: (level?.getLevelNumber())!, random: true)
     }
     
     func purchaseRequest() {
@@ -122,7 +133,7 @@ class GameViewController: UIViewController, LevelObserver {
             else {passedLevel6()}
         }
         if ((levelNumber < 6 || (UserDefaults.standard.value(forKey: "hasPaid")) as! Bool) && levelNumber < 12 ){
-            UserDefaults.standard.set(level!.getLevelNumber() + 1, forKey: "highestLevel")
+            UserDefaults.standard.set(levelNumber + 1, forKey: "highestLevel")
             //TODO: Update level buttons
         }
     }
@@ -134,46 +145,50 @@ class GameViewController: UIViewController, LevelObserver {
     }
     
     func updateNumberOfCubeObjects(previousSize : Int) {
-        level?.addObserver(self)
         if !(previousSize == self.level?.getSize()) {
+            for cs in cubeStructures {
+                cs.removeFromParentNode()
+            }
             cubeStructures = []
             makeCubes()
+        } else {
+            for cs in cubeStructures {
+                level?.addObserver(cs)
+            }
         }
-        level?.addObserver(cubeStructures[0])
     }
     
-    func switchTo(level: Int) {
+    func allowedToSwitch(toLevel level : Int) {
+        self.level?.persistData()
+        changeLevel(to: level, random: false)
+        if level == 2 && UserDefaults.standard.bool(forKey: "showLevel2Tip")  {
+            alertManager!.presentTipAlert(withMessage: Constants.Scripts.secondLevel, withTitle: "Center Cube", dismissButton: "Makes Sense!")
+            UserDefaults.standard.set(false, forKey: "showLevel2Tip")
+        }
+    }
+    
+    func tryToSwitchTo(level: Int) {
         switchingToLevel = level
         if level == self.level?.levelNumber {
             alertManager!.presentActionSheet(withMessage: "You're currently playing level \(level)", currentLevel: true, random: ((level == 3 || level == 11 || level == 12) && self.level!.hasPassed))
             return
         }
-        if level > 6 {
+        /*if level > 6 {
             if (!UserDefaults.standard.bool(forKey: "hasPaid") && store == nil) {store = UpgradeHandler(completion: clickedHigherLevel)}
             else {clickedHigherLevel()}
         }
-        else if level <= UserDefaults.standard.integer(forKey: "highestLevel") {
-            let currentSize = self.level?.getSize()
-            self.level?.persistData()
-            self.level = SudokuLevel(level: level)
-            updateNumberOfCubeObjects(previousSize : currentSize!)
-            if level == 2 && UserDefaults.standard.bool(forKey: "showLevel2Tip")  {
-                alertManager!.presentTipAlert(withMessage: Constants.Scripts.secondLevel, withTitle: "Center Cube", dismissButton: "Makes Sense!")
-                UserDefaults.standard.set(false, forKey: "showLevel2Tip")
-            }
-        } else {
+        else if level <= UserDefaults.standard.integer(forKey: "highestLevel") { */
+            allowedToSwitch(toLevel: level)
+        /*} else {
             alertManager!.presentActionSheet(withMessage: "Level \(level) is currently blocked and will be unblocked when you beat level \(level - 1)")
-        }
+        }*/
     }
     
     func clickedHigherLevel() {
         if !UserDefaults.standard.bool(forKey: "hasPaid") {
             alertManager!.presentActionSheet(withMessage: "Level \(switchingToLevel!) is currently blocked. Only levels 1-6 are available in free play. Upgrade for unlimited 4X4 and 5X5 levels.")
         } else if switchingToLevel! <= UserDefaults.standard.integer(forKey: "highestLevel") {
-            let currentSize = self.level?.getSize()
-            self.level?.persistData()
-            self.level = SudokuLevel(level: switchingToLevel!)
-            updateNumberOfCubeObjects(previousSize : currentSize!)
+            allowedToSwitch(toLevel: switchingToLevel!)
         } else {
             alertManager!.presentActionSheet(withMessage: "Level \(switchingToLevel!) is currently blocked and will be unblocked when you beat level \(switchingToLevel! - 1)")
         }
@@ -187,11 +202,11 @@ class GameViewController: UIViewController, LevelObserver {
         for hitObject in hitList {
             let node = hitObject.node
             if (node.name?.contains("Cube"))! {
-                level!.nextColor(atIndex: (node as! Cube).getCubeNumber())
+                level!.nextColor(atIndex: (node.parent as! Cube).getCubeNumber())
             }
             if (node.name?.contains("lvl"))! {
                 let lvl = Int(node.name![node.name!.index(node.name!.startIndex, offsetBy: 3)...])
-                self.switchTo(level: lvl!)
+                self.tryToSwitchTo(level: lvl!)
             }
         }
     }

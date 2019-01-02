@@ -33,11 +33,11 @@ class TitleNode : SCNNode {
 
     private func makeCurrentLevelNode() {
         currentLevel.font = UIFont (name: "Arial", size: 3)
-        currentLevel.firstMaterial!.diffuse.contents = Constants.Colors.frame
-        currentLevel.firstMaterial!.specular.contents = Constants.Colors.frame
+        currentLevel.firstMaterial!.diffuse.contents = Constants.Colors.title
+        currentLevel.firstMaterial!.specular.contents = Constants.Colors.title
         let textNode = SCNNode(geometry: currentLevel)
         textNode.name = "currentLevel"
-        textNode.position = SCNVector3(x:-5, y: 4, z: 0)
+        textNode.position = SCNVector3(x:-10, y: 4, z: 0)
         self.addChildNode(textNode)
     }
     
@@ -87,6 +87,10 @@ class TitleNode : SCNNode {
         material.diffuse.contents = Constants.Colors.title
         titleNode.geometry?.firstMaterial = material
         self.addChildNode(titleNode)
+    }
+    
+    public func updateLevel(_ level : Int) {
+        currentLevel.string = "Current Level: \(level)"
     }
     
     /*public func clickedHigherLevel() {

@@ -20,11 +20,6 @@ class Cube : SCNNode {
     var cubeNode : SCNNode
     var frameNode : SCNNode
     
-    override func copy(with zone: NSZone? = nil) -> Any {
-        let cc = Cube(number: self.cubeNumber, numberOfColors: self.numberOfColors, colorIndex: self.colorIndex, isComplete: self.frameNode.geometry?.firstMaterial?.diffuse.contents as! UIColor == Constants.Colors.frameWon)
-        return cc
-    }
-    
     init(number : Int, numberOfColors : Int, colorIndex : UInt8, isComplete : Bool) {
         cubeNumber = number
         self.numberOfColors = numberOfColors
@@ -33,8 +28,8 @@ class Cube : SCNNode {
         let frameGeometry = Cube.theFrameArt.geometry
         cubeNode = SCNNode(geometry: cubeGeometry!.copy() as? SCNGeometry)
         frameNode = SCNNode(geometry: frameGeometry!.copy() as? SCNGeometry)
-        cubeNode.name = "ube\(cubeNumber)O"
-        frameNode.name = "Frame\(cubeNumber)"
+        cubeNode.name = "Cube\(cubeNumber)"
+        frameNode.name = "Frame"
         let scale : Float = numberOfColors == 5 ? 1.5 : 2
         cubeNode.scale = SCNVector3Make(scale, scale, scale)
         frameNode.scale = SCNVector3Make(scale/2, scale/2, scale/2)
@@ -49,6 +44,11 @@ class Cube : SCNNode {
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func copy(with zone: NSZone? = nil) -> Any {
+        let cc = Cube(number: self.cubeNumber, numberOfColors: self.numberOfColors, colorIndex: self.colorIndex, isComplete: self.frameNode.geometry?.firstMaterial?.diffuse.contents as! UIColor == Constants.Colors.frameWon)
+        return cc
     }
     
     func setColor(index : UInt8) {
