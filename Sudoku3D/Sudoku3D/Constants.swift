@@ -21,19 +21,19 @@ struct Constants {
         static let clear = UIColor(red: 0, green: 0, blue: 0, alpha: 0)
         
         static let fillColors = [
-            UIColor(red: 0, green: 0, blue: 0, alpha: 0),     // CLEAR
+            UIColor(red: 0, green: 0, blue: 0, alpha: 0),         // CLEAR
             // Chosen Colors
-            UIColor(red: 0, green: 0, blue: 1, alpha: 0.8),   // BLUE
-            UIColor(red: 1, green: 0, blue: 0, alpha: 0.8),   // RED
-            UIColor(red: 0, green: 1, blue: 0.2, alpha: 0.8), // GREEN
-            UIColor(red: 0, green: 0.9, blue: 1, alpha: 0.8), // BABY BLUE
-            UIColor(red: 1, green: 1, blue: 0, alpha: 0.8),   // YELLOW
+            UIColor(red: 0, green: 0, blue: 1, alpha: 0.8),       // BLUE
+            UIColor(red: 1, green: 0, blue: 0, alpha: 0.8),       // RED
+            UIColor(red: 0.1, green: 0.9, blue: 0.1, alpha: 0.8), // GREEN
+            UIColor(red: 0, green: 0.9, blue: 1, alpha: 0.8),     // BABY BLUE
+            UIColor(red: 1, green: 1, blue: 0, alpha: 0.8),       // YELLOW
             // Given Colors
-            UIColor(red: 0, green: 0, blue: 1, alpha: 1),     // BLUE
-            UIColor(red: 1, green: 0, blue: 0, alpha: 1),     // RED
-            UIColor(red: 0, green: 1, blue: 0.2, alpha: 1),   // GREEN
-            UIColor(red: 0, green: 0.9, blue: 1, alpha: 1),   // BABY BLUE
-            UIColor(red: 1, green: 1, blue: 0, alpha: 1)]     // YELLOW
+            UIColor(red: 0, green: 0, blue: 1, alpha: 1),         // BLUE
+            UIColor(red: 1, green: 0, blue: 0, alpha: 1),         // RED
+            UIColor(red: 0.1, green: 0.9, blue: 0.1, alpha: 1),   // GREEN
+            UIColor(red: 0, green: 0.9, blue: 1, alpha: 1),       // BABY BLUE
+            UIColor(red: 1, green: 1, blue: 0, alpha: 1)]         // YELLOW
         
     }
     
@@ -66,6 +66,6 @@ struct Constants {
     9 : [112, 9, 0, 144, 0, 0, 0, 135, 0, 150, 112, 9, 0, 128, 144, 0, 96, 7, 6, 112, 128, 105, 120, 0, 0, 120, 96, 7, 8, 144, 135, 9],
     10: [0, 128, 96, 0, 137, 0, 118, 0, 134, 0, 0, 8, 96, 128, 8, 0, 9, 8, 128, 0, 0, 6, 103, 0, 8, 112, 0, 128, 118, 144, 128, 7],
     11: [112, 6, 8, 103, 0, 0, 6, 112, 8, 0, 6, 0, 9, 112, 0, 96, 0, 0, 0, 8, 152, 0, 112, 128, 7, 104, 137, 0, 6, 137, 0, 7],
-    12: [0, 6, 9, 0, 0, 6, 8, 144, 0, 0, 96, 0, 160, 0, 0, 0, 0, 0, 8, 0, 0, 0, 128, 0, 7, 144, 138, 0, 144, 0, 0, 0, 6, 128, 0, 0, 0, 0, 0, 7, 0, 0, 144, 9, 112, 112, 128, 105, 0, 0, 96, 0, 0, 166, 0, 7, 0, 128, 96, 0, 9, 0, 0]
+    12: [0, 128, 0, 7, 0, 144, 96, 8, 0, 0, 122, 144, 96, 7, 0, 0, 128, 6, 10, 0, 10, 144, 0, 6, 112, 0, 0, 6, 0, 0, 128, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 9, 0, 0, 0, 0, 7, 9, 9, 10, 112, 9, 0, 0, 128, 144, 0, 0, 0, 0, 0]
     ]
 }

@@ -12,6 +12,8 @@ import CoreData
 import SceneKit
 
 class GameViewController: UIViewController, LevelObserver {
+    static let screenWidth = UIScreen.main.bounds.width
+    static let screenHeight = UIScreen.main.bounds.height
     var gameView : SCNView!
     var gameScene : SCNScene!
     var cameraNode : SCNNode!
@@ -66,7 +68,8 @@ class GameViewController: UIViewController, LevelObserver {
     func initCamera() {
         cameraNode = SCNNode()
         cameraNode.camera = SCNCamera()
-        cameraNode.position = SCNVector3(0, 0, 30)
+        cameraNode.position = SCNVector3(0, 0, 100)
+        cameraNode.camera?.zFar = 150
         gameScene.rootNode.addChildNode(cameraNode)
     }
     
@@ -80,11 +83,14 @@ class GameViewController: UIViewController, LevelObserver {
         let dim = (level?.getDimension())!
         cubeStructures.append(CubeStructure(numberOfColors: dim, dimension: dim , delegate: self))
         gameScene.rootNode.addChildNode(cubeStructures[0])
+        cubeStructures[0].updateAngles(x: xAngle, y: yAngle)
         cubeStructures.append(CubeStructure(numberOfColors: dim, dimension: dim - 2, delegate: self, masterCube: cubeStructures[0]))
         gameScene.rootNode.addChildNode(cubeStructures[1])
+        cubeStructures[1].updateAngles(x: xAngle, y: yAngle)
         if dim == 5 {
             cubeStructures.append(CubeStructure(numberOfColors: dim, dimension: 1, delegate: self, masterCube: cubeStructures[0]))
             gameScene.rootNode.addChildNode(cubeStructures[2])
+            cubeStructures[2].updateAngles(x: xAngle, y: yAngle)
         }
         for cs in cubeStructures {
             level?.addObserver(cs)
@@ -101,18 +107,14 @@ class GameViewController: UIViewController, LevelObserver {
     
     func resetCube() { level?.resetLevel() }
 
-    func randomLevel() {
-        level!.randomLevel()
-    }
+    func randomLevel() { level!.randomLevel() }
     
     func purchaseRequest() {
         let (success,message) = self.store!.getPaymentAlertInfo()
         alertManager!.responseToPurchaseRequest(success:success,message:message)
     }
     
-    func buyProduct() {
-        self.store!.buyProduct()
-    }
+    func buyProduct() { self.store!.buyProduct() }
 
     func update(block: Int, colorIndex: UInt8, status: LevelStatus) {
         if status == .wonFirstTime {

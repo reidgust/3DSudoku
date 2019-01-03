@@ -11,13 +11,12 @@ import SceneKit
 
 class TitleNode : SCNNode {
     let currentLevel = SCNText(string: "Current Level", extrusionDepth: 1)
+    let levelButtonSize = Float(GameViewController.screenWidth) / 200
     
     override init() {
         super.init()
-        self.geometry = SCNBox(width: 20, height: 10, length: 4, chamferRadius: 0.2)
-        self.geometry?.firstMaterial?.diffuse.contents = Constants.Colors.clear
         self.name = "TitleBar"
-        self.position = SCNVector3(0,35,-70)
+        self.position = SCNVector3(0, 5 * Float(GameViewController.screenWidth) / 53,0) // Max Height Cube reaches
         self.light = SCNLight()
         self.light!.type = SCNLight.LightType.ambient
         self.light!.temperature = 500
@@ -37,19 +36,18 @@ class TitleNode : SCNNode {
         currentLevel.firstMaterial!.specular.contents = Constants.Colors.title
         let textNode = SCNNode(geometry: currentLevel)
         textNode.name = "currentLevel"
-        textNode.position = SCNVector3(x:-10, y: 4, z: 0)
+        textNode.position = SCNVector3(x: -10, y: -5, z: 0)
         self.addChildNode(textNode)
     }
     
     private func makeLevelButtons() {
         let highestLevel = UserDefaults.standard.integer(forKey: "highestLevel")
         for i in 1...12 {
-            let radius : Float = 2.6
-            let lvlNode = SCNNode(geometry : (SCNSphere(radius: CGFloat(radius))))
+            let lvlNode = SCNNode(geometry : (SCNSphere(radius: CGFloat(levelButtonSize))))
             let image = imageWithText(text:highestLevel >= i ? "\(i)" : "X", backgroundColor: getLevelIconColor(i))
             lvlNode.geometry!.firstMaterial?.diffuse.contents = image
             lvlNode.name = "lvl\(i)"
-            let xPos : Float = (2*Float(i)-13) * radius
+            let xPos : Float = (2*Float(i)-13) * levelButtonSize
             lvlNode.position = SCNVector3(x: xPos, y: 12, z: 0)
             self.addChildNode(lvlNode)
         }
@@ -104,7 +102,7 @@ class TitleNode : SCNNode {
         guard let geometry = title.rootNode.childNode(withName: "typeMesh1", recursively: true)?.geometry else { return }
         let titleNode = SCNNode(geometry: geometry)
         titleNode.scale = SCNVector3Make(0.8, 0.8, 0.8)
-        titleNode.position = SCNVector3(x: -23, y: -5, z: 0)
+        titleNode.position = SCNVector3(x: -23, y: 0, z: 0)
         titleNode.name = "Title"
         let material = SCNMaterial()
         material.diffuse.contents = Constants.Colors.title

@@ -16,12 +16,14 @@ class Cube : SCNNode {
     let cubeNumber : Int
     let numberOfColors : Int
     var colorIndex : UInt8
+    var width : Float
 
     var cubeNode : SCNNode
     var frameNode : SCNNode
     
-    init(number : Int, numberOfColors : Int, colorIndex : UInt8, isComplete : Bool) {
+    init(number : Int, numberOfColors : Int, colorIndex : UInt8, isComplete : Bool, width : Float) {
         cubeNumber = number
+        self.width = width
         self.numberOfColors = numberOfColors
         self.colorIndex = colorIndex
         let cubeGeometry = Cube.theCubeArt.geometry
@@ -30,9 +32,8 @@ class Cube : SCNNode {
         frameNode = SCNNode(geometry: frameGeometry!.copy() as? SCNGeometry)
         cubeNode.name = "Cube\(cubeNumber)"
         frameNode.name = "Frame"
-        let scale : Float = numberOfColors == 5 ? 1.5 : 2
-        cubeNode.scale = SCNVector3Make(scale, scale, scale)
-        frameNode.scale = SCNVector3Make(scale/2, scale/2, scale/2)
+        cubeNode.scale = SCNVector3Make(width, width, width)
+        frameNode.scale = SCNVector3Make(width/2, width/2, width/2)
         cubeNode.geometry?.firstMaterial = SCNMaterial()
         cubeNode.geometry?.firstMaterial?.diffuse.contents = Constants.Colors.fillColors[Int(colorIndex)]
         frameNode.geometry?.firstMaterial?.diffuse.contents = isComplete ? Constants.Colors.frameWon : Constants.Colors.frame
@@ -47,7 +48,7 @@ class Cube : SCNNode {
     }
     
     override func copy(with zone: NSZone? = nil) -> Any {
-        let cc = Cube(number: self.cubeNumber, numberOfColors: self.numberOfColors, colorIndex: self.colorIndex, isComplete: self.frameNode.geometry?.firstMaterial?.diffuse.contents as! UIColor == Constants.Colors.frameWon)
+        let cc = Cube(number: self.cubeNumber, numberOfColors: self.numberOfColors, colorIndex: self.colorIndex, isComplete: self.frameNode.geometry?.firstMaterial?.diffuse.contents as! UIColor == Constants.Colors.frameWon, width : self.width)
         return cc
     }
     

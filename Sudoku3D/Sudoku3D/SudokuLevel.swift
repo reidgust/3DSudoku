@@ -76,9 +76,9 @@ class SudokuLevel {
     func randomLevel() {
         self.isComplete = false
         self.state = SudokuLevel.answerHandler.pickRandomSoln(size: dimension)
-        let percentMissing = 40 + arc4random_uniform(40)
+        let percentMissing = 60 + arc4random_uniform(20)
         for i in 0..<dimension*dimension*dimension {
-            if arc4random_uniform(100) > percentMissing {
+            if arc4random_uniform(100) < percentMissing {
                 self.state[i] = 0
             }
         }

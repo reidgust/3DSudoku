@@ -11,6 +11,7 @@ import SceneKit
 
 class CubeStructure : SCNNode, LevelObserver{
     var id: Int
+    let cubeWidth : Float
 
     enum cubeType {
         case Outer
@@ -34,28 +35,28 @@ class CubeStructure : SCNNode, LevelObserver{
         self.dimension = dimension
         self.masterCube = masterCube
         self.id = (dimension * 10) + numberOfColors
+        self.cubeWidth = Float(GameViewController.screenWidth) / (numberOfColors == 5 ? 69 : 53)
         type = numberOfColors == dimension ? .Outer : (numberOfColors == 3 ? .InnerThree : (numberOfColors == 4 ? .InnerFour : (dimension == 1 ? .InnerInnerFive : .InnerFive)))
         super.init()
+        geometry = SCNBox(width: 0, height: 0, length: 0, chamferRadius: 0)
+        geometry?.firstMaterial?.diffuse.contents = Constants.Colors.clear
         self.geometry = SCNBox(width: 0, height: 0, length: 0, chamferRadius: 0)
         self.geometry?.firstMaterial?.diffuse.contents = Constants.Colors.clear
-        self.light = SCNLight()
-        self.light!.type = SCNLight.LightType.ambient
-        self.light!.temperature = 500
-        self.light!.intensity = 500
         self.name = "structureSized\(dimension)"
-        var yPos : Float = dimension == 5 ? 2 : 0
+        var yPos : Float = numberOfColors == 5 ? 1.5 : 0
         switch type {
         case .Outer:
             break
         case .InnerThree:
-            yPos -= 10
+            yPos -= 4.5
         case .InnerFour:
-            yPos -= 10
+            yPos -= 5.0
         case .InnerFive:
-            yPos -= 7.5
+            yPos -= 6.5
         case .InnerInnerFive:
-            yPos -= 13.2
+            yPos -= 10.5
         }
+        yPos *= cubeWidth
         self.position = SCNVector3(0,yPos,0)
         createAndPlaceCubes()
     }
@@ -102,21 +103,20 @@ class CubeStructure : SCNNode, LevelObserver{
     }
     
     func getCubePosition(index i: Int) -> SCNVector3{
-        let scale : Float = numberOfColors == 5 ? 1.5 : 2
         let offset = (Float(numberOfColors) / 2) - 0.5
         let position = SCNVector3(
-            x: (Float(i % numberOfColors) - offset) * scale,
-            y: ((Float((i / numberOfColors) % numberOfColors)) - offset) * scale,
-            z: ((Float(((i / (numberOfColors*numberOfColors)) % numberOfColors)) - offset) * scale))
+            x: (Float(i % numberOfColors) - offset) * cubeWidth,
+            y: ((Float((i / numberOfColors) % numberOfColors)) - offset) * cubeWidth,
+            z: ((Float(((i / (numberOfColors*numberOfColors)) % numberOfColors)) - offset) * cubeWidth))
         return position
     }
 
     func createAndPlaceCubes(){
         if type == CubeStructure.cubeType.Outer {
-            let starterCube = Cube(number: 0, numberOfColors: numberOfColors, colorIndex: 0, isComplete: false)
+            let starterCube = Cube(number: 0, numberOfColors: numberOfColors, colorIndex: 0, isComplete: false, width: cubeWidth)
             cubes = Array<Cube>(repeating: starterCube, count: dimension*dimension*dimension)
             for i in 0..<(dimension*dimension*dimension) {
-                let cube = Cube(number: i, numberOfColors: numberOfColors, colorIndex: 0, isComplete: false)
+                let cube = Cube(number: i, numberOfColors: numberOfColors, colorIndex: 0, isComplete: false, width: cubeWidth)
                 cubes[i] = cube
                 cube.position = getCubePosition(index:i)
                 self.addChildNode(cube)
