@@ -6,3 +6,5 @@ Good luck!
 
 ![](3x3.gif)
 ![](Win.gif)
+![](otherClip.m4v)
+![](clipGood.m4v)
