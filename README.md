@@ -4,7 +4,5 @@ A level is won when every color is represented in every column, row, and depth.
 Center cubes are duplicated so that they can be clicked. A darker shade lets you tell between the given cubes and the ones you have guessed.
 Good luck!
 ![](Preview.gif)
-![](otherClip.gif)
-![](clipGood.gif)
 
 
